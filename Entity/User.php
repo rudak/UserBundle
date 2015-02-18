@@ -3,6 +3,8 @@
 namespace Rudak\UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 
 /**
  * User
@@ -10,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table()
  * @ORM\Entity(repositoryClass="Rudak\UserBundle\Entity\UserRepository")
  */
-class User
+class User implements UserInterface, \Serializable, EquatableInterface
 {
     /**
      * @var integer
@@ -41,6 +43,15 @@ class User
      * @ORM\Column(name="password", type="string", length=80)
      */
     private $password;
+
+    private $plain;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="salt", type="string", length=70)
+     */
+    private $salt;
 
     /**
      * @var boolean
@@ -75,7 +86,7 @@ class User
      *
      * @ORM\Column(name="datetime", type="datetime")
      */
-    private $datetime;
+    private $date;
 
     /**
      * @var string
@@ -84,11 +95,17 @@ class User
      */
     private $roles;
 
+    function __construct()
+    {
+        $this->roles = array();
+        $this->salt  = md5(uniqid(null, true));
+    }
+
 
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -111,7 +128,7 @@ class User
     /**
      * Get username
      *
-     * @return string 
+     * @return string
      */
     public function getUsername()
     {
@@ -134,7 +151,7 @@ class User
     /**
      * Get email
      *
-     * @return string 
+     * @return string
      */
     public function getEmail()
     {
@@ -157,12 +174,29 @@ class User
     /**
      * Get password
      *
-     * @return string 
+     * @return string
      */
     public function getPassword()
     {
         return $this->password;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getPlain()
+    {
+        return $this->plain;
+    }
+
+    /**
+     * @param mixed $plain
+     */
+    public function setPlain($plain)
+    {
+        $this->plain = $plain;
+    }
+
 
     /**
      * Set enabled
@@ -180,7 +214,7 @@ class User
     /**
      * Get enabled
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getEnabled()
     {
@@ -203,7 +237,7 @@ class User
     /**
      * Get blocked
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getBlocked()
     {
@@ -226,7 +260,7 @@ class User
     /**
      * Get lastLogin
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getLastLogin()
     {
@@ -249,7 +283,7 @@ class User
     /**
      * Get hash
      *
-     * @return string 
+     * @return string
      */
     public function getHash()
     {
@@ -257,14 +291,14 @@ class User
     }
 
     /**
-     * Set datetime
+     * Set date
      *
      * @param \DateTime $datetime
      * @return User
      */
-    public function setDatetime($datetime)
+    public function setDate($datetime)
     {
-        $this->datetime = $datetime;
+        $this->date = $datetime;
 
         return $this;
     }
@@ -272,11 +306,11 @@ class User
     /**
      * Get datetime
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
-    public function getDatetime()
+    public function getDate()
     {
-        return $this->datetime;
+        return $this->date;
     }
 
     /**
@@ -295,10 +329,68 @@ class User
     /**
      * Get roles
      *
-     * @return string 
+     * @return string
      */
     public function getRoles()
     {
         return $this->roles;
+    }
+
+    /**
+     * Returns the salt that was originally used to encode the password.
+     *
+     * This can return null if the password was not encoded using a salt.
+     *
+     * @return string|null The salt
+     */
+    public function getSalt()
+    {
+        return $this->salt;
+    }
+
+    /**
+     * Removes sensitive data from the user.
+     *
+     * This is important if, at any given point, sensitive information like
+     * the plain-text password is stored on this object.
+     */
+    public function eraseCredentials()
+    {
+        $this->plain = null;
+    }
+
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * String representation of object
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     */
+    public function serialize()
+    {
+        return serialize(array(
+            $this->id,
+        ));
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * Constructs the object
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     * The string representation of the object.
+     * </p>
+     * @return void
+     */
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+            ) = unserialize($serialized);
+    }
+
+    public function isEqualTo(UserInterface $user)
+    {
+        return $this->username === $user->getUsername();
     }
 }
