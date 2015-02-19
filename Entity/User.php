@@ -56,28 +56,28 @@ class User implements UserInterface, \Serializable, EquatableInterface
     /**
      * @var boolean
      *
-     * @ORM\Column(name="enabled", type="boolean")
+     * @ORM\Column(name="enabled", type="boolean",nullable=true)
      */
     private $enabled;
 
     /**
      * @var boolean
      *
-     * @ORM\Column(name="blocked", type="boolean")
+     * @ORM\Column(name="blocked", type="boolean",nullable=true)
      */
     private $blocked;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="lastLogin", type="datetime")
+     * @ORM\Column(name="lastLogin", type="datetime",nullable=true)
      */
     private $lastLogin;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="hash", type="string", length=130)
+     * @ORM\Column(name="hash", type="string", length=130,nullable=true)
      */
     private $hash;
 
@@ -97,8 +97,10 @@ class User implements UserInterface, \Serializable, EquatableInterface
 
     function __construct()
     {
-        $this->roles = array();
-        $this->salt  = md5(uniqid(null, true));
+        $this->enabled = false;
+        $this->blocked = false;
+        $this->date    = new \Datetime();
+        $this->salt    = md5(uniqid(null, true));
     }
 
 
@@ -319,9 +321,9 @@ class User implements UserInterface, \Serializable, EquatableInterface
      * @param string $roles
      * @return User
      */
-    public function setRoles($roles)
+    public function setRoles(array $roles)
     {
-        $this->roles = $roles;
+        $this->roles = serialize($roles);
 
         return $this;
     }
@@ -333,7 +335,7 @@ class User implements UserInterface, \Serializable, EquatableInterface
      */
     public function getRoles()
     {
-        return $this->roles;
+        return unserialize($this->roles);
     }
 
     /**
