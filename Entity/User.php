@@ -33,10 +33,6 @@ class User implements UserInterface, \Serializable
 	 */
 	private $password;
 
-	/**
-	 * @ORM\Column(type="string", length=255)
-	 */
-	private $salt;
 
 	/**
 	 * @ORM\Column(type="string", length=60, unique=true)
@@ -47,15 +43,20 @@ class User implements UserInterface, \Serializable
 	 * @ORM\Column(name="is_active", type="boolean")
 	 */
 	private $isActive;
+
 	/**
 	 * @ORM\Column(type="array")
 	 */
 	protected $roles;
 
+	/**
+	 * @ORM\Column(name="lastLogin", type="datetime")
+	 */
+	private $lastLogin;
+
 	public function __construct()
 	{
 		$this->isActive = true;
-		$this->salt = md5(uniqid(null, true));
 		$this->roles[ ] = static::ROLE_DEFAULT;
 	}
 
@@ -77,7 +78,7 @@ class User implements UserInterface, \Serializable
 	 */
 	public function getSalt()
 	{
-		return $this->salt;
+		return null;
 	}
 
 	/**
@@ -168,7 +169,6 @@ class User implements UserInterface, \Serializable
 			$this->id,
 			$this->username,
 			$this->password,
-			$this->salt,
 		]);
 	}
 
@@ -181,7 +181,6 @@ class User implements UserInterface, \Serializable
 			$this->id,
 			$this->username,
 			$this->password,
-			$this->salt
 			) = unserialize($serialized);
 	}
 
@@ -266,4 +265,22 @@ class User implements UserInterface, \Serializable
 	{
 		return $this->isActive;
 	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getLastLogin()
+	{
+		return $this->lastLogin;
+	}
+
+	/**
+	 * @param mixed $lastLogin
+	 */
+	public function setLastLogin($lastLogin)
+	{
+		$this->lastLogin = $lastLogin;
+	}
+
+
 }
