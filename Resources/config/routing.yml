@@ -1,4 +1,5 @@
-
 index:
-    path:     /userIndex
+    pattern:     /index
     defaults: { _controller: RudakUserBundle:Default:index }
+
+

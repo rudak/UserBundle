@@ -4,395 +4,266 @@ namespace Rudak\UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\EquatableInterface;
 
 /**
- * User
+ * Acme\UserBundle\Entity\User
  *
- * @ORM\Table()
+ * @ORM\Table(name="rudak_users")
  * @ORM\Entity(repositoryClass="Rudak\UserBundle\Entity\UserRepository")
  */
-class User implements UserInterface, \Serializable, EquatableInterface
+class User implements UserInterface, \Serializable
 {
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
+	const ROLE_DEFAULT = 'ROLE_USER';
+	const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="username", type="string", length=40)
-     */
-    private $username;
+	/**
+	 * @ORM\Column(type="integer")
+	 * @ORM\Id
+	 * @ORM\GeneratedValue(strategy="AUTO")
+	 */
+	private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="email", type="string", length=80)
-     */
-    private $email;
+	/**
+	 * @ORM\Column(type="string", length=25, unique=true)
+	 */
+	private $username;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="password", type="string", length=80)
-     */
-    private $password;
+	/**
+	 * @ORM\Column(type="string", length=255)
+	 */
+	private $password;
 
-    private $plain;
+	/**
+	 * @ORM\Column(type="string", length=255)
+	 */
+	private $salt;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="salt", type="string", length=70)
-     */
-    private $salt;
+	/**
+	 * @ORM\Column(type="string", length=60, unique=true)
+	 */
+	private $email;
 
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="enabled", type="boolean",nullable=true)
-     */
-    private $enabled;
+	/**
+	 * @ORM\Column(name="is_active", type="boolean")
+	 */
+	private $isActive;
+	/**
+	 * @ORM\Column(type="array")
+	 */
+	protected $roles;
 
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="blocked", type="boolean",nullable=true)
-     */
-    private $blocked;
+	public function __construct()
+	{
+		$this->isActive = true;
+		$this->salt = md5(uniqid(null, true));
+		$this->roles[ ] = static::ROLE_DEFAULT;
+	}
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="lastLogin", type="datetime",nullable=true)
-     */
-    private $lastLogin;
+	public function __toString()
+	{
+		return 'user' . $this->username;
+	}
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="hash", type="string", length=130,nullable=true)
-     */
-    private $hash;
+	/**
+	 * @inheritDoc
+	 */
+	public function getUsername()
+	{
+		return $this->username;
+	}
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="datetime", type="datetime")
-     */
-    private $date;
+	/**
+	 * @inheritDoc
+	 */
+	public function getSalt()
+	{
+		return $this->salt;
+	}
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="roles", type="string", length=255)
-     */
-    private $roles;
+	/**
+	 * @inheritDoc
+	 */
+	public function getPassword()
+	{
+		return $this->password;
+	}
 
-    function __construct()
-    {
-        $this->enabled = false;
-        $this->blocked = false;
-        $this->date    = new \Datetime();
-        $this->salt    = md5(uniqid(null, true));
-    }
+	public function setRoles(array $roles)
+	{
+		foreach ($roles as $role) {
+			$this->addRole($role);
+		}
 
+		return $this;
+	}
 
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getRoles()
+	{
+		$roles = $this->roles;
+		$roles[ ] = static::ROLE_DEFAULT;
 
-    /**
-     * Set username
-     *
-     * @param string $username
-     * @return User
-     */
-    public function setUsername($username)
-    {
-        $this->username = $username;
+		return array_unique($roles);
+	}
 
-        return $this;
-    }
+	public function addRole($role)
+	{
+		$role = strtoupper($role);
+		if ($role === static::ROLE_DEFAULT) {
+			return $this;
+		}
+		if (!in_array($role, $this->roles, true)) {
+			$this->roles[ ] = $role;
+		}
 
-    /**
-     * Get username
-     *
-     * @return string
-     */
-    public function getUsername()
-    {
-        return $this->username;
-    }
+		return $this;
+	}
 
-    /**
-     * Set email
-     *
-     * @param string $email
-     * @return User
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
+	public function hasRole($role)
+	{
+		return in_array(strtoupper($role), $this->getRoles(), true);
+	}
 
-        return $this;
-    }
+	public function removeRole($role)
+	{
+		if (false !== $key = array_search(strtoupper($role), $this->roles, true)) {
+			unset($this->roles[ $key ]);
+			$this->roles = array_values($this->roles);
+		}
 
-    /**
-     * Get email
-     *
-     * @return string
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
+		return $this;
+	}
 
-    /**
-     * Set password
-     *
-     * @param string $password
-     * @return User
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
+	public function isSuperAdmin()
+	{
+		return $this->hasRole(static::ROLE_SUPER_ADMIN);
+	}
 
-        return $this;
-    }
+	public function setSuperAdmin($boolean)
+	{
+		if (true === $boolean) {
+			$this->addRole(static::ROLE_SUPER_ADMIN);
+		} else {
+			$this->removeRole(static::ROLE_SUPER_ADMIN);
+		}
 
-    /**
-     * Get password
-     *
-     * @return string
-     */
-    public function getPassword()
-    {
-        return $this->password;
-    }
+		return $this;
+	}
 
-    /**
-     * @return mixed
-     */
-    public function getPlain()
-    {
-        return $this->plain;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function eraseCredentials()
+	{
+	}
 
-    /**
-     * @param mixed $plain
-     */
-    public function setPlain($plain)
-    {
-        $this->plain = $plain;
-    }
+	/**
+	 * @see \Serializable::serialize()
+	 */
+	public function serialize()
+	{
+		return serialize([
+			$this->id,
+			$this->username,
+			$this->password,
+			$this->salt,
+		]);
+	}
 
+	/**
+	 * @see \Serializable::unserialize()
+	 */
+	public function unserialize($serialized)
+	{
+		list (
+			$this->id,
+			$this->username,
+			$this->password,
+			$this->salt
+			) = unserialize($serialized);
+	}
 
-    /**
-     * Set enabled
-     *
-     * @param boolean $enabled
-     * @return User
-     */
-    public function setEnabled($enabled)
-    {
-        $this->enabled = $enabled;
+	/**
+	 * Get id
+	 *
+	 * @return integer
+	 */
+	public function getId()
+	{
+		return $this->id;
+	}
 
-        return $this;
-    }
+	/**
+	 * Set username
+	 *
+	 * @param string $username
+	 * @return User
+	 */
+	public function setUsername($username)
+	{
+		$this->username = $username;
 
-    /**
-     * Get enabled
-     *
-     * @return boolean
-     */
-    public function getEnabled()
-    {
-        return $this->enabled;
-    }
+		return $this;
+	}
 
-    /**
-     * Set blocked
-     *
-     * @param boolean $blocked
-     * @return User
-     */
-    public function setBlocked($blocked)
-    {
-        $this->blocked = $blocked;
+	/**
+	 * Set password
+	 *
+	 * @param string $password
+	 * @return User
+	 */
+	public function setPassword($password)
+	{
+		$this->password = $password;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * Get blocked
-     *
-     * @return boolean
-     */
-    public function getBlocked()
-    {
-        return $this->blocked;
-    }
+	/**
+	 * Set email
+	 *
+	 * @param string $email
+	 * @return User
+	 */
+	public function setEmail($email)
+	{
+		$this->email = $email;
 
-    /**
-     * Set lastLogin
-     *
-     * @param \DateTime $lastLogin
-     * @return User
-     */
-    public function setLastLogin($lastLogin)
-    {
-        $this->lastLogin = $lastLogin;
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * Get email
+	 *
+	 * @return string
+	 */
+	public function getEmail()
+	{
+		return $this->email;
+	}
 
-    /**
-     * Get lastLogin
-     *
-     * @return \DateTime
-     */
-    public function getLastLogin()
-    {
-        return $this->lastLogin;
-    }
+	/**
+	 * Set isActive
+	 *
+	 * @param boolean $isActive
+	 * @return User
+	 */
+	public function setIsActive($isActive)
+	{
+		$this->isActive = $isActive;
 
-    /**
-     * Set hash
-     *
-     * @param string $hash
-     * @return User
-     */
-    public function setHash($hash)
-    {
-        $this->hash = $hash;
+		return $this;
+	}
 
-        return $this;
-    }
-
-    /**
-     * Get hash
-     *
-     * @return string
-     */
-    public function getHash()
-    {
-        return $this->hash;
-    }
-
-    /**
-     * Set date
-     *
-     * @param \DateTime $datetime
-     * @return User
-     */
-    public function setDate($datetime)
-    {
-        $this->date = $datetime;
-
-        return $this;
-    }
-
-    /**
-     * Get datetime
-     *
-     * @return \DateTime
-     */
-    public function getDate()
-    {
-        return $this->date;
-    }
-
-    /**
-     * Set roles
-     *
-     * @param string $roles
-     * @return User
-     */
-    public function setRoles(array $roles)
-    {
-        $this->roles = serialize($roles);
-
-        return $this;
-    }
-
-    /**
-     * Get roles
-     *
-     * @return string
-     */
-    public function getRoles()
-    {
-        return unserialize($this->roles);
-    }
-
-    /**
-     * Returns the salt that was originally used to encode the password.
-     *
-     * This can return null if the password was not encoded using a salt.
-     *
-     * @return string|null The salt
-     */
-    public function getSalt()
-    {
-        return $this->salt;
-    }
-
-    /**
-     * Removes sensitive data from the user.
-     *
-     * This is important if, at any given point, sensitive information like
-     * the plain-text password is stored on this object.
-     */
-    public function eraseCredentials()
-    {
-        $this->plain = null;
-    }
-
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * String representation of object
-     * @link http://php.net/manual/en/serializable.serialize.php
-     * @return string the string representation of the object or null
-     */
-    public function serialize()
-    {
-        return serialize(array(
-            $this->id,
-        ));
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Constructs the object
-     * @link http://php.net/manual/en/serializable.unserialize.php
-     * @param string $serialized <p>
-     * The string representation of the object.
-     * </p>
-     * @return void
-     */
-    public function unserialize($serialized)
-    {
-        list (
-            $this->id,
-            ) = unserialize($serialized);
-    }
-
-    public function isEqualTo(UserInterface $user)
-    {
-        return $this->username === $user->getUsername();
-    }
+	/**
+	 * Get isActive
+	 *
+	 * @return boolean
+	 */
+	public function getIsActive()
+	{
+		return $this->isActive;
+	}
 }
