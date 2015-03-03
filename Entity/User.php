@@ -50,19 +50,24 @@ class User implements UserInterface, \Serializable
 	protected $roles;
 
 	/**
-	 * @ORM\Column(name="lastLogin", type="datetime")
+	 * @ORM\Column(name="lastLogin", type="datetime",nullable=true)
 	 */
 	private $lastLogin;
+
+	/**
+	 * @ORM\Column(type="string", length=70, nullable=true)
+	 */
+	private $hash;
 
 	public function __construct()
 	{
 		$this->isActive = true;
-		$this->roles[ ] = static::ROLE_DEFAULT;
+		$this->roles[] = static::ROLE_DEFAULT;
 	}
 
 	public function __toString()
 	{
-		return 'user' . $this->username;
+		return $this->username;
 	}
 
 	/**
@@ -104,7 +109,7 @@ class User implements UserInterface, \Serializable
 	public function getRoles()
 	{
 		$roles = $this->roles;
-		$roles[ ] = static::ROLE_DEFAULT;
+		$roles[] = static::ROLE_DEFAULT;
 
 		return array_unique($roles);
 	}
@@ -116,7 +121,7 @@ class User implements UserInterface, \Serializable
 			return $this;
 		}
 		if (!in_array($role, $this->roles, true)) {
-			$this->roles[ ] = $role;
+			$this->roles[] = $role;
 		}
 
 		return $this;
@@ -281,6 +286,23 @@ class User implements UserInterface, \Serializable
 	{
 		$this->lastLogin = $lastLogin;
 	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getHash()
+	{
+		return $this->hash;
+	}
+
+	/**
+	 * @param mixed $hash
+	 */
+	public function setHash($hash)
+	{
+		$this->hash = $hash;
+	}
+
 
 
 }

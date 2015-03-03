@@ -3,3 +3,11 @@ index:
     defaults: { _controller: RudakUserBundle:Default:index }
 
 
+record_new:
+    pattern:     /record-new-user
+    defaults: { _controller: RudakUserBundle:Record:new }
+
+record_create:
+    pattern:     /create-user
+    defaults: { _controller: RudakUserBundle:Record:create }
+

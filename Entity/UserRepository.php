@@ -17,43 +17,43 @@ use Doctrine\ORM\NoResultException;
  */
 class UserRepository extends EntityRepository implements UserProviderInterface
 {
-    public function loadUserByUsername($username)
-    {
-        $q = $this
-            ->createQueryBuilder('u')
-            ->where('u.username = :username OR u.email = :email')
-            ->setParameter('username', $username)
-            ->setParameter('email', $username)
-            ->getQuery();
+	public function loadUserByUsername($username)
+	{
+		if (null == $user = $this->getUserIfExists($username)) {
+			throw new UsernameNotFoundException(sprintf('Unable to find an active user RudakUserBundle:User object identified by "%s".', $username), 0, $e);
+		}
 
-        try {
-            // La méthode Query::getSingleResult() lance une exception
-            // s'il n'y a pas d'entrée correspondante aux critères
-            $user = $q->getSingleResult();
-        } catch (NoResultException $e) {
-            throw new UsernameNotFoundException(sprintf('Unable to find an active admin RudakUserBundle:User object identified by "%s".', $username), 0, $e);
-        }
+		return $user;
+	}
 
-        return $user;
-    }
+	public function refreshUser(UserInterface $user)
+	{
+		$class = get_class($user);
+		if (!$this->supportsClass($class)) {
+			throw new UnsupportedUserException(
+				sprintf(
+					'Instances of "%s" are not supported.',
+					$class
+				)
+			);
+		}
 
-    public function refreshUser(UserInterface $user)
-    {
-        $class = get_class($user);
-        if (!$this->supportsClass($class)) {
-            throw new UnsupportedUserException(
-                sprintf(
-                    'Instances of "%s" are not supported.',
-                    $class
-                )
-            );
-        }
+		return $this->find($user->getId());
+	}
 
-        return $this->find($user->getId());
-    }
+	public function supportsClass($class)
+	{
+		return $this->getEntityName() === $class || is_subclass_of($class, $this->getEntityName());
+	}
 
-    public function supportsClass($class)
-    {
-        return $this->getEntityName() === $class || is_subclass_of($class, $this->getEntityName());
-    }
+	public function getUserIfExists($username)
+	{
+		$q = $this
+			->createQueryBuilder('u')
+			->where('u.username = :username OR u.email = :email')
+			->setParameter('username', $username)
+			->setParameter('email', $username)
+			->getQuery();
+		return $q->getOneOrNullResult();
+	}
 }
