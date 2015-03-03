@@ -4,8 +4,11 @@ services:
         arguments: ['@security.context', '@doctrine']
         tags:
             - { name: 'kernel.event_listener', event: 'security.interactive_login' }
-
-    rudak.user.post.record:
+    rudak_user.handler.post_record:
+        class: Rudak\UserBundle\Handler\PostRecordHandler
+        arguments: [@mailer]
+    rudak.user.listener.post.record:
         class: Rudak\UserBundle\Listener\PostRecordListener
+        arguments: [@rudak_user.handler.post_record]
         tags:
-            - { name: kernel.event_listener, event: rudak.user.record, method: updateUser }
+            - { name: kernel.event_listener, event: rudak_user.record, method: updateUser }

@@ -12,87 +12,87 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RecordController extends Controller
 {
-	public function newAction()
-	{
-		$User = new User();
-		$form = $this->createNewForm($User);
+    public function newAction()
+    {
+        $User = new User();
+        $form = $this->createNewForm($User);
 
-		return $this->render('RudakUserBundle:Record:new.html.twig', [
-			'form' => $form->createView()
-		]);
-	}
+        return $this->render('RudakUserBundle:Record:new.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
 
-	public function createAction(Request $request)
-	{
+    private function createNewForm($user)
+    {
+        $form = $this->createForm(new RecordType(), $user, [
+            'action' => $this->generateUrl('record_create')
+        ]);
 
-		$User = new User();
-		$form = $this->createNewForm($User);
-		$form->handleRequest($request);
-		if ($form->isValid()) {
-			$data = $form->getData();
-			$User->setPassword($this->createPassword($User));
+        return $form;
+    }
 
-			if (!$this->checkDuplicate($User)) {
+    public function createAction(Request $request)
+    {
 
-				$RecordEvent = new RecordEvent($User);
-				$this
-					->get('event_dispatcher')
-					->dispatch(UserEvents::USER_RECORD, $RecordEvent);
+        $User = new User();
+        $form = $this->createNewForm($User);
+        $form->handleRequest($request);
+        if ($form->isValid()) {
+            $data = $form->getData();
+            $User->setPassword($this->createPassword($User));
 
-				$em = $this->getDoctrine()->getManager();
-				$em->persist($User);
-				$em->flush();
+            if (!$this->checkDuplicate($User)) {
 
-				$request->getSession()->getFlashBag()->add(
-					'notice',
-					'Utilisateur ' . $User->getUsername() . ' créé.'
-				);
+                $RecordEvent = new RecordEvent($User);
+                $this
+                    ->get('event_dispatcher')
+                    ->dispatch(UserEvents::USER_RECORD, $RecordEvent);
 
-				return $this->render('RudakUserBundle:Record:after.html.twig');
-			} else {
-				$request->getSession()->getFlashBag()->add(
-					'notice',
-					'Utilisateur possedant le meme pseudo ou mot de passe existe deja dans la base'
-				);
-			}
-		} else {
-			$request->getSession()->getFlashBag()->add(
-				'notice',
-				'Formulaire invalide !'
-			);
-		}
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($User);
+                $em->flush();
+
+                $request->getSession()->getFlashBag()->add(
+                    'notice',
+                    'Utilisateur ' . $User->getUsername() . ' créé.'
+                );
+
+                return $this->render('RudakUserBundle:Record:after.html.twig');
+            } else {
+                $request->getSession()->getFlashBag()->add(
+                    'notice',
+                    'Utilisateur possedant le meme pseudo ou mot de passe existe deja dans la base'
+                );
+            }
+        } else {
+            $request->getSession()->getFlashBag()->add(
+                'notice',
+                'Formulaire invalide !'
+            );
+        }
 
 
-		return $this->redirect($this->generateUrl('record_new'));
-	}
+        return $this->redirect($this->generateUrl('record_new'));
+    }
 
-	private function checkDuplicate(User $user)
-	{
-		$em = $this->getDoctrine()->getManager();
-		$repo = $em->getRepository('RudakUserBundle:User');
+    private function createPassword(User $user)
+    {
+        $encoder = $this->container
+            ->get('security.encoder_factory')
+            ->getEncoder($user);
+        return $encoder->encodePassword($user->getPassword(), $user->getSalt());
 
-		if ($repo->getUserIfExists($user->getUsername()) instanceof User) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    }
 
-	private function createNewForm($user)
-	{
-		$form = $this->createForm(new RecordType(), $user, [
-			'action' => $this->generateUrl('record_create')
-		]);
+    private function checkDuplicate(User $user)
+    {
+        $em   = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository('RudakUserBundle:User');
 
-		return $form;
-	}
-
-	private function createPassword(User $user)
-	{
-		$encoder = $this->container
-			->get('security.encoder_factory')
-			->getEncoder($user);
-		return $encoder->encodePassword($user->getPassword(), $user->getSalt());
-
-	}
+        if ($repo->getUserIfExists($user->getUsername()) instanceof User) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
