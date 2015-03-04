@@ -61,7 +61,7 @@ class User implements UserInterface, \Serializable
 
 	public function __construct()
 	{
-		$this->isActive = true;
+		$this->isActive = false;
 		$this->roles[] = static::ROLE_DEFAULT;
 	}
 

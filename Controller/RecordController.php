@@ -52,20 +52,19 @@ class RecordController extends Controller
                 $em->persist($User);
                 $em->flush();
 
-                $request->getSession()->getFlashBag()->add(
-                    'notice',
-                    'Utilisateur ' . $User->getUsername() . ' créé.'
-                );
+                // $this->addFlash('notice', 'Utilisateur ' . $User->getUsername() . ' créé.');
 
-                return $this->render('RudakUserBundle:Record:after.html.twig');
+                return $this->render('RudakUserBundle:Record:after.html.twig', array(
+                    'user' => $User
+                ));
             } else {
-                $request->getSession()->getFlashBag()->add(
+                $this->addFlash(
                     'notice',
                     'Utilisateur possedant le meme pseudo ou mot de passe existe deja dans la base'
                 );
             }
         } else {
-            $request->getSession()->getFlashBag()->add(
+            $this->addFlash(
                 'notice',
                 'Formulaire invalide !'
             );
@@ -94,5 +93,30 @@ class RecordController extends Controller
         } else {
             return false;
         }
+    }
+
+    public function validationAction($hash)
+    {
+        $em   = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository('RudakUserBundle:User');
+
+        $User = $repo->getUserByHash($hash);
+        if (!$User) {
+            // correspond a rien
+            throw $this->createNotFoundException('Utilisateur impossible a trouver avec le hash "' . $hash . '".');
+        }
+        if (true == $User->getIsActive()) {
+            // utilisateur deja actif
+            throw $this->createNotFoundException('Cet utilisateur a déja été activé !');
+        }
+        $User->setIsActive(true);
+        $em->persist($User);
+        $em->flush();
+
+        $this->addFlash(
+            'notice',
+            'Email de l\'utilisateur ' . $User->getUsername() . ' validée.'
+        );
+        return $this->redirectToRoute('game_main_homepage');
     }
 }

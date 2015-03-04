@@ -2,12 +2,11 @@
 
 namespace Rudak\UserBundle\Entity;
 
+use Doctrine\ORM\EntityRepository;
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\NoResultException;
 
 /**
  * UserRepository
@@ -17,43 +16,53 @@ use Doctrine\ORM\NoResultException;
  */
 class UserRepository extends EntityRepository implements UserProviderInterface
 {
-	public function loadUserByUsername($username)
-	{
-		if (null == $user = $this->getUserIfExists($username)) {
-			throw new UsernameNotFoundException(sprintf('Unable to find an active user RudakUserBundle:User object identified by "%s".', $username), 0, $e);
-		}
+    public function loadUserByUsername($username)
+    {
+        if (null == $user = $this->getUserIfExists($username)) {
+            throw new UsernameNotFoundException(sprintf('Unable to find an active user RudakUserBundle:User object identified by "%s".', $username), 0, $e);
+        }
 
-		return $user;
-	}
+        return $user;
+    }
 
-	public function refreshUser(UserInterface $user)
-	{
-		$class = get_class($user);
-		if (!$this->supportsClass($class)) {
-			throw new UnsupportedUserException(
-				sprintf(
-					'Instances of "%s" are not supported.',
-					$class
-				)
-			);
-		}
+    public function getUserIfExists($username)
+    {
+        $q = $this
+            ->createQueryBuilder('u')
+            ->where('u.username = :username OR u.email = :email')
+            ->setParameter('username', $username)
+            ->setParameter('email', $username)
+            ->getQuery();
+        return $q->getOneOrNullResult();
+    }
 
-		return $this->find($user->getId());
-	}
+    public function refreshUser(UserInterface $user)
+    {
+        $class = get_class($user);
+        if (!$this->supportsClass($class)) {
+            throw new UnsupportedUserException(
+                sprintf(
+                    'Instances of "%s" are not supported.',
+                    $class
+                )
+            );
+        }
 
-	public function supportsClass($class)
-	{
-		return $this->getEntityName() === $class || is_subclass_of($class, $this->getEntityName());
-	}
+        return $this->find($user->getId());
+    }
 
-	public function getUserIfExists($username)
-	{
-		$q = $this
-			->createQueryBuilder('u')
-			->where('u.username = :username OR u.email = :email')
-			->setParameter('username', $username)
-			->setParameter('email', $username)
-			->getQuery();
-		return $q->getOneOrNullResult();
-	}
+    public function supportsClass($class)
+    {
+        return $this->getEntityName() === $class || is_subclass_of($class, $this->getEntityName());
+    }
+
+    public function getUserByHash($hash)
+    {
+        $qb = $this
+            ->createQueryBuilder('u')
+            ->where('u.hash = :hash')
+            ->setParameter('hash', $hash)
+            ->getQuery();
+        return $qb->getOneOrNullResult();
+    }
 }

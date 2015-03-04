@@ -10,4 +10,11 @@ record_new:
 record_create:
     pattern:     /create-user
     defaults: { _controller: RudakUserBundle:Record:create }
+    requirements:
+        _method: POST
 
+record_validing_email:
+    pattern:     /email-validation/{hash}
+    defaults: { _controller: RudakUserBundle:Record:validation }
+    requirements:
+        hash: "[a-z\d]+"

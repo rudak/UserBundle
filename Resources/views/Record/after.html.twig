@@ -2,8 +2,13 @@
 
 {% block body %}
     <h1>
-        Après enregistrement utilisateur
+        Félicitations {{ user.username }} !
     </h1>
 
-
+    <p>
+        Un email vient de vous etre envoyé à l'adresse {{ user.email }}, veuillez cliquer sur le lien de validation pour
+        confirmer votre adresse mail et valider l'inscription.
+        <br/>
+        Merci beaucoup.
+    </p>
 {% endblock %}
