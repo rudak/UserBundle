@@ -3,12 +3,15 @@
 namespace Rudak\UserBundle\Controller;
 
 use Rudak\UserBundle\Entity\User;
+use Rudak\UserBundle\Event\EmailValidationEvent;
 use Rudak\UserBundle\Event\RecordEvent;
 use Rudak\UserBundle\Event\UserEvents;
 use Rudak\UserBundle\Form\RecordType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class RecordController extends Controller
 {
@@ -95,7 +98,7 @@ class RecordController extends Controller
         }
     }
 
-    public function validationAction($hash)
+    public function validationAction($hash, Request $request)
     {
         $em   = $this->getDoctrine()->getManager();
         $repo = $em->getRepository('RudakUserBundle:User');
@@ -109,7 +112,19 @@ class RecordController extends Controller
             // utilisateur deja actif
             throw $this->createNotFoundException('Cet utilisateur a déja été activé !');
         }
-        $User->setIsActive(true);
+
+        $EmailValidationEvent = new EmailValidationEvent($User);
+        $this
+            ->get('event_dispatcher')
+            ->dispatch(UserEvents::USER_EMAIL_VALIDATION, $EmailValidationEvent);
+
+        $token = new UsernamePasswordToken($User, null, "secured_area", $User->getRoles());
+        $this->get("security.context")->setToken($token); //maintenant le gars est loggé
+
+        //maintenant il faut dispatch l'event du login 'classique'
+        $event = new InteractiveLoginEvent($request, $token);
+        $this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
+
         $em->persist($User);
         $em->flush();
 

@@ -7,8 +7,19 @@ services:
     rudak_user.handler.post_record:
         class: Rudak\UserBundle\Handler\PostRecordHandler
         arguments: [@mailer,@templating,@router]
+
+    rudak_user.handler.email_validation:
+        class: Rudak\UserBundle\Handler\EmailValidationHandler
+
+    # listener d'enregistrement d'user
     rudak.user.listener.post.record:
         class: Rudak\UserBundle\Listener\PostRecordListener
         arguments: [@rudak_user.handler.post_record]
         tags:
             - { name: kernel.event_listener, event: rudak_user.record, method: updateUser }
+    # listener de validation du mail
+    rudak.user.listener.email.validation:
+        class: Rudak\UserBundle\Listener\EmailValidationListener
+        arguments: [@rudak_user.handler.email_validation]
+        tags:
+            - { name: kernel.event_listener, event: rudak_user.email_validation, method: validationSuccess }

@@ -3,6 +3,8 @@ namespace Rudak\UserBundle\Handler;
 
 use Rudak\UserBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Templating\EngineInterface;
 
 class PostRecordHandler
@@ -19,19 +21,21 @@ class PostRecordHandler
         $this->router     = $router;
     }
 
-
-    public function sendMail()
+    public function justRecorded()
     {
         if (null === $this->user) {
             return;
         }
+        // Création du hash de vérification
+        $this->user->setHash(sha1(uniqid(rand(), TRUE)));
+        // creation du mail
         $message = \Swift_Message::newInstance()
             ->setSubject("Validation de votre adresse email")
             ->setFrom('admin@votresite.com')
             ->setContentType("text/html")
             ->setTo($this->user->getEmail())
             ->setBody($this->getEmailHtml());
-
+        // envoi
         $this->mailer->send($message);
     }
 
@@ -43,14 +47,6 @@ class PostRecordHandler
                 'hash' => $this->user->getHash(),
             ), true)
         ));
-    }
-
-    public function setHash()
-    {
-        if (null === $this->user) {
-            return;
-        }
-        $this->user->setHash(sha1(uniqid(rand(), TRUE)));
     }
 
     /**

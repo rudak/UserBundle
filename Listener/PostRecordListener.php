@@ -25,8 +25,7 @@ class PostRecordListener
     public function updateUser(RecordEvent $event)
     {
         $this->postRecordHandler->setUser($event->getUser());
-        $this->postRecordHandler->setHash();
-        $this->postRecordHandler->sendMail();
+        $this->postRecordHandler->justRecorded();
         $event->setUser($this->postRecordHandler->getUser());
     }
 } 
