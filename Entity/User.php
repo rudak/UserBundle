@@ -18,7 +18,7 @@ class User implements UserInterface, \Serializable
     /**
      * @ORM\Column(type="array")
      */
-    protected $roles;
+    private $roles;
     /**
      * @ORM\Column(type="integer")
      * @ORM\Id
@@ -45,12 +45,10 @@ class User implements UserInterface, \Serializable
      * @ORM\Column(name="lastLogin", type="datetime", nullable=true)
      */
     private $lastLogin;
-
     /**
      * @ORM\Column(name="email_validation", type="datetime", nullable=true)
      */
     private $emailValidation;
-
     /**
      * @ORM\Column(type="string", length=70, nullable=true)
      */

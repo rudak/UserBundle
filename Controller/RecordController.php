@@ -132,6 +132,6 @@ class RecordController extends Controller
             'notice',
             'Email de l\'utilisateur ' . $User->getUsername() . ' validée.'
         );
-        return $this->redirectToRoute('game_main_homepage');
+        return $this->redirectToRoute('homepage');
     }
 }

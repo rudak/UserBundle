@@ -1,25 +1,32 @@
+parameters:
+    kernel.listener.atd.access_denied.class: Rudak\UserBundle\Listener\AccessDeniedListener
+
 services:
     rudak.user.login:
         class: Rudak\UserBundle\Listener\LoginListener
-        arguments: ['@security.context', '@doctrine']
+        arguments: [@security.context, @doctrine]
         tags:
-            - { name: 'kernel.event_listener', event: 'security.interactive_login' }
+            - { name: kernel.event_listener, event: security.interactive_login }
     rudak_user.handler.post_record:
         class: Rudak\UserBundle\Handler\PostRecordHandler
         arguments: [@mailer,@templating,@router]
-
     rudak_user.handler.email_validation:
         class: Rudak\UserBundle\Handler\EmailValidationHandler
-
-    # listener d'enregistrement d'user
     rudak.user.listener.post.record:
         class: Rudak\UserBundle\Listener\PostRecordListener
         arguments: [@rudak_user.handler.post_record]
         tags:
             - { name: kernel.event_listener, event: rudak_user.record, method: updateUser }
-    # listener de validation du mail
     rudak.user.listener.email.validation:
         class: Rudak\UserBundle\Listener\EmailValidationListener
         arguments: [@rudak_user.handler.email_validation]
         tags:
             - { name: kernel.event_listener, event: rudak_user.email_validation, method: validationSuccess }
+
+    rudak_user.listener.accessDenied:
+        class: %kernel.listener.atd.access_denied.class%
+        scope: request
+        arguments: [@session, @router, @request]
+        tags:
+           - { name: kernel.event_listener, event: kernel.exception, method: onAccessDeniedException }
+

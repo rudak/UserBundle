@@ -3,8 +3,6 @@ namespace Rudak\UserBundle\Handler;
 
 use Rudak\UserBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Templating\EngineInterface;
 
 class PostRecordHandler
