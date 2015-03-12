@@ -1,0 +1,10 @@
+{% extends main_layout %}
+
+{% block body %}
+    <h2>Nouveau mot de passe</h2>
+    <p>
+        Allez y <strong>{{ user.username }}</strong> definissez un nouveau mot de passe et validez.
+        (essayez de mieux vous en souvenir cette fois^^)
+    </p>
+    {{ form(form) }}
+{% endblock %}

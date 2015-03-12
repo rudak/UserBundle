@@ -1,0 +1,11 @@
+{% extends main_layout %}
+
+{% block body %}
+
+    <form action="{{ path('rudakUser_lost_pwd_find') }}" method="post">
+        <label for="username">{{ 'password.lost.label'|trans }}</label>
+        <input type="text" id="lostpwd_user_input" name="lostpwd_user_input"/>
+
+        <button type="submit">{{ 'password.lost.btn'|trans }}</button>
+    </form>
+{% endblock %}

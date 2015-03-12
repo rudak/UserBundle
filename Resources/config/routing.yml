@@ -2,7 +2,6 @@ index:
     pattern:     /index
     defaults: { _controller: RudakUserBundle:Default:index }
 
-
 record_new:
     pattern:     /record-new-user
     defaults: { _controller: RudakUserBundle:Record:new }
@@ -18,3 +17,25 @@ record_validing_email:
     defaults: { _controller: RudakUserBundle:Record:validation }
     requirements:
         hash: "[a-z\d]+"
+
+rudakUser_lost_pwd:
+    pattern: /mot-de-passe-perdu
+    defaults: { _controller: RudakUserBundle:Password:lost }
+
+rudakUser_lost_pwd_find:
+    pattern: /retrouver-utilisateur
+    defaults: { _controller: RudakUserBundle:Password:findUser }
+    requirements:
+        _method: POST
+
+rudakUser_reinit_mail_answer:
+    pattern: /reinitialisation-mot-de-passe/{hash}
+    defaults: { _controller: RudakUserBundle:Password:emailAnswer }
+    requirements:
+        hash: "[a-z\d]+"
+
+rudakUser_password_lost_reinit:
+    pattern: /enregistrer-nouveau-mot-de-passe
+    defaults: { _controller: RudakUserBundle:Password:recordNewPassword }
+    requirements:
+        _method: POST

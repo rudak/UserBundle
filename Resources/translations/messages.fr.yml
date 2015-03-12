@@ -5,4 +5,8 @@ security:
         password: "Mot de passe :"
         remember_me: Se souvenir de moi
         submit: Connexion
-"Bad credentials.": Incorrect username and/or password
+password:
+    lost:
+        label: Votre pseudo ou adresse email ?
+        btn: Retrouver
+"Bad credentials.": Pseudo ou mot de passe incorrect.

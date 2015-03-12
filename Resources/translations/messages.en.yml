@@ -1,0 +1,12 @@
+# Security
+security:
+    login:
+        username: "Username :"
+        password: "Password :"
+        remember_me: Remember me
+        submit: Connexion
+password:
+    lost:
+        label: Your username or email ?
+        btn: Retrieve
+"Bad credentials.": Incorrect username and/or password
