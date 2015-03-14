@@ -99,7 +99,7 @@ class UserRepository extends EntityRepository implements UserProviderInterface
 		$qb = $this
 			->createQueryBuilder('u')
 			->where('u.recoveryHash = :hash')->setParameter('hash', $hash)
-			->andWhere('u.recoveryExpireAt >= :now')->setParameter('now', new \Datetime())
+			//->andWhere('u.recoveryExpireAt >= :now')->setParameter('now', new \Datetime())
 			->getQuery();
 		return $qb->getOneOrNullResult();
 	}

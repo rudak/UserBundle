@@ -72,10 +72,13 @@ class PasswordController extends Controller
 		$user = $em->getRepository('RudakUserBundle:User')->getUserByHash($hash);
 
 		if (!$user) {
-			$this->addFlash('notice', 'Impossible de trouver une correspondance avec ce hash.');
+			$this->addFlash('notice', 'Impossible de trouver une correspondance avec cette clé de réinitialisation.');
 			return $this->redirectToRoute('homepage');
 		}
-
+		if (new \Datetime('NOW') > $user->getRecoveryExpireAt()) {
+			$this->addFlash('notice', "Le code de réinitialisation est expiré, merci de recommencer la procedure.");
+			return $this->redirectToRoute('rudakUser_lost_pwd');
+		}
 		$changePasswordModel = new ChangePassword();
 		$changePasswordModel->setHash($hash);
 		$form = $this->getChangePasswordForm($changePasswordModel);
