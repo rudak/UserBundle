@@ -36,6 +36,19 @@ class UserRepository extends EntityRepository implements UserProviderInterface
 		return $user;
 	}
 
+	private function getFindUserQuery($username)
+	{
+		return $this
+			->createQueryBuilder('u')
+			->where('u.username = :username OR u.email = :email')
+			->setParameter('username', $username)
+			->setParameter('email', $username)
+			->getQuery();
+	}
+
+	/*
+	 * Renvoie le Query qui va bien
+	 */
 
 	/**
 	 * Vérifie que l'username ou le mot de passe correspond a un user
@@ -47,19 +60,6 @@ class UserRepository extends EntityRepository implements UserProviderInterface
 	{
 		$qb = $this->getFindUserQuery($username);
 		return $qb->getOneOrNullResult();
-	}
-
-	/*
-	 * Renvoie le Query qui va bien
-	 */
-	private function getFindUserQuery($username)
-	{
-		return $this
-			->createQueryBuilder('u')
-			->where('u.username = :username OR u.email = :email')
-			->setParameter('username', $username)
-			->setParameter('email', $username)
-			->getQuery();
 	}
 
 	public function refreshUser(UserInterface $user)
@@ -98,8 +98,8 @@ class UserRepository extends EntityRepository implements UserProviderInterface
 	{
 		$qb = $this
 			->createQueryBuilder('u')
-			->where('u.hash = :hash')
-			->setParameter('hash', $hash)
+			->where('u.recoveryHash = :hash')->setParameter('hash', $hash)
+			->andWhere('u.recoveryExpireAt >= :now')->setParameter('now', new \Datetime())
 			->getQuery();
 		return $qb->getOneOrNullResult();
 	}

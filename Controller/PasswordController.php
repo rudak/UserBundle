@@ -28,9 +28,10 @@ class PasswordController extends Controller
 		$user = $em->getRepository('RudakUserBundle:User')->checkIfUserExists($data);
 
 		if ($user && $user instanceof User) {
-			$user->setHash(sha1(md5(uniqid(null, true))));
+			$user->setRecoveryHash(sha1(md5(uniqid(null, true))));
+			$user->setRecoveryExpireAt(new \Datetime('+1 hour'));
 			$this->sendMail($user);
-			$this->addFlash('notice', 'Email de récupération envoyé');
+			$this->addFlash('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
 			$em->persist($user);
 			$em->flush();
 		} else {
@@ -54,7 +55,7 @@ class PasswordController extends Controller
 			->setBody($this->renderView('RudakUserBundle:Email:link-password-init.html.twig', array(
 				'user' => $user,
 				'link' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
-					'hash' => $user->getHash()
+					'hash' => $user->getRecoveryHash()
 				), true)
 			)));
 		$this->get('mailer')->send($message);
@@ -65,17 +66,30 @@ class PasswordController extends Controller
 	 * @param $hash
 	 * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
 	 */
-	public function emailAnswerAction($hash)
+	public function emailAnswerAction(Request $request, $hash)
 	{
 		$em   = $this->getDoctrine()->getManager();
 		$user = $em->getRepository('RudakUserBundle:User')->getUserByHash($hash);
+
 		if (!$user) {
 			$this->addFlash('notice', 'Impossible de trouver une correspondance avec ce hash.');
 			return $this->redirectToRoute('homepage');
 		}
+
 		$changePasswordModel = new ChangePassword();
 		$changePasswordModel->setHash($hash);
 		$form = $this->getChangePasswordForm($changePasswordModel);
+
+		$form->handleRequest($request);
+		if ($form->isValid()) {
+			$user->setRecoveryHash(null);
+			$user->setRecoveryExpireAt(null);
+			$user->setPassword($this->createPassword($user, $changePasswordModel->getNewPassword()));
+			$em->persist($user);
+			$em->flush();
+			$this->addFlash('notice', "Le mot de passe a été changé avec succès.");
+			return $this->redirectToRoute('homepage');
+		}
 		return $this->render('RudakUserBundle:Password:init-form.html.twig', array(
 			'form' => $form->createView(),
 			'user' => $user
@@ -90,37 +104,10 @@ class PasswordController extends Controller
 	private function getChangePasswordForm(ChangePassword $changePasswordModel)
 	{
 		return $this->createForm(new ChangePasswordType(), $changePasswordModel, array(
-			'action' => $this->generateUrl('rudakUser_password_lost_reinit'),
+			'action' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
+				'hash' => $changePasswordModel->getHash()
+			)),
 			'method' => 'POST',
-		));
-	}
-
-	/**
-	 * Traite la reception du changement de mot de passe
-	 * @param Request $request
-	 * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-	 */
-	public function recordNewPasswordAction(Request $request)
-	{
-		$changePasswordModel = new ChangePassword();
-		$form                = $this->getChangePasswordForm($changePasswordModel);
-		$form->handleRequest($request);
-		if ($form->isValid()) {
-			$em   = $this->getDoctrine()->getManager();
-			$user = $em->getRepository('RudakUserBundle:User')->getUserByHash($changePasswordModel->getHash());
-			if (!$user) {
-				// user perdu en route
-				throw $this->createNotFoundException('User perdu en route');
-			}
-			$password = $this->createPassword($user, $changePasswordModel->getNewPassword());
-			$user->setPassword($password);
-			$em->persist($user);
-			$em->flush();
-			$this->addFlash('notice', 'Mot de passe réinitialisé avec succès');
-			return $this->redirectToRoute('homepage');
-		}
-		return $this->render('RudakUserBundle:Password:init-form.html.twig', array(
-			'form' => $form->createView()
 		));
 	}
 

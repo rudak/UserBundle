@@ -13,307 +13,327 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class User implements UserInterface, \Serializable
 {
-    const ROLE_DEFAULT = 'ROLE_USER';
-    const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
-    /**
-     * @ORM\Column(type="array")
-     */
-    private $roles;
-    /**
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
-    /**
-     * @ORM\Column(type="string", length=25, unique=true)
-     */
-    private $username;
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $password;
-    /**
-     * @ORM\Column(type="string", length=60, unique=true)
-     */
-    private $email;
-    /**
-     * @ORM\Column(name="is_active", type="boolean")
-     */
-    private $isActive;
-    /**
-     * @ORM\Column(name="lastLogin", type="datetime", nullable=true)
-     */
-    private $lastLogin;
-    /**
-     * @ORM\Column(name="email_validation", type="datetime", nullable=true)
-     */
-    private $emailValidation;
-    /**
-     * @ORM\Column(type="string", length=70, nullable=true)
-     */
-    private $hash;
+	const ROLE_DEFAULT = 'ROLE_USER';
+	const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
+	/**
+	 * @ORM\Column(type="array")
+	 */
+	private $roles;
+	/**
+	 * @ORM\Column(type="integer")
+	 * @ORM\Id
+	 * @ORM\GeneratedValue(strategy="AUTO")
+	 */
+	private $id;
+	/**
+	 * @ORM\Column(type="string", length=25, unique=true)
+	 */
+	private $username;
+	/**
+	 * @ORM\Column(type="string", length=255)
+	 */
+	private $password;
+	/**
+	 * @ORM\Column(type="string", length=60, unique=true)
+	 */
+	private $email;
+	/**
+	 * @ORM\Column(name="is_active", type="boolean")
+	 */
+	private $isActive;
+	/**
+	 * @ORM\Column(name="lastLogin", type="datetime", nullable=true)
+	 */
+	private $lastLogin;
+	/**
+	 * @ORM\Column(name="email_validation", type="datetime", nullable=true)
+	 */
+	private $emailValidation;
+	/**
+	 * @ORM\Column(type="string", length=70, nullable=true)
+	 */
+	private $recoveryHash;
+	/**
+	 * @ORM\Column(name="recovery_date", type="datetime", nullable=true)
+	 */
+	private $recoveryExpireAt;
 
-    public function __construct()
-    {
-        $this->isActive = false;
-        $this->roles[]  = static::ROLE_DEFAULT;
-    }
 
-    public function __toString()
-    {
-        return $this->username;
-    }
+	public function __construct()
+	{
+		$this->isActive = false;
+		$this->roles[]  = static::ROLE_DEFAULT;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getUsername()
-    {
-        return $this->username;
-    }
+	public function __toString()
+	{
+		return $this->username;
+	}
 
-    /**
-     * Set username
-     *
-     * @param string $username
-     * @return User
-     */
-    public function setUsername($username)
-    {
-        $this->username = $username;
+	/**
+	 * @inheritDoc
+	 */
+	public function getUsername()
+	{
+		return $this->username;
+	}
 
-        return $this;
-    }
+	/**
+	 * Set username
+	 *
+	 * @param string $username
+	 * @return User
+	 */
+	public function setUsername($username)
+	{
+		$this->username = $username;
 
-    /**
-     * @inheritDoc
-     */
-    public function getSalt()
-    {
-        return null;
-    }
+		return $this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getPassword()
-    {
-        return $this->password;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getSalt()
+	{
+		return null;
+	}
 
-    /**
-     * Set password
-     *
-     * @param string $password
-     * @return User
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
+	/**
+	 * @inheritDoc
+	 */
+	public function getPassword()
+	{
+		return $this->password;
+	}
 
-        return $this;
-    }
+	/**
+	 * Set password
+	 *
+	 * @param string $password
+	 * @return User
+	 */
+	public function setPassword($password)
+	{
+		$this->password = $password;
 
-    public function isSuperAdmin()
-    {
-        return $this->hasRole(static::ROLE_SUPER_ADMIN);
-    }
+		return $this;
+	}
 
-    public function hasRole($role)
-    {
-        return in_array(strtoupper($role), $this->getRoles(), true);
-    }
+	public function isSuperAdmin()
+	{
+		return $this->hasRole(static::ROLE_SUPER_ADMIN);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getRoles()
-    {
-        $roles   = $this->roles;
-        $roles[] = static::ROLE_DEFAULT;
+	public function hasRole($role)
+	{
+		return in_array(strtoupper($role), $this->getRoles(), true);
+	}
 
-        return array_unique($roles);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getRoles()
+	{
+		$roles   = $this->roles;
+		$roles[] = static::ROLE_DEFAULT;
 
-    public function setRoles(array $roles)
-    {
-        foreach ($roles as $role) {
-            $this->addRole($role);
-        }
+		return array_unique($roles);
+	}
 
-        return $this;
-    }
+	public function setRoles(array $roles)
+	{
+		foreach ($roles as $role) {
+			$this->addRole($role);
+		}
 
-    public function addRole($role)
-    {
-        $role = strtoupper($role);
-        if ($role === static::ROLE_DEFAULT) {
-            return $this;
-        }
-        if (!in_array($role, $this->roles, true)) {
-            $this->roles[] = $role;
-        }
+		return $this;
+	}
 
-        return $this;
-    }
+	public function addRole($role)
+	{
+		$role = strtoupper($role);
+		if ($role === static::ROLE_DEFAULT) {
+			return $this;
+		}
+		if (!in_array($role, $this->roles, true)) {
+			$this->roles[] = $role;
+		}
 
-    public function setSuperAdmin($boolean)
-    {
-        if (true === $boolean) {
-            $this->addRole(static::ROLE_SUPER_ADMIN);
-        } else {
-            $this->removeRole(static::ROLE_SUPER_ADMIN);
-        }
+		return $this;
+	}
 
-        return $this;
-    }
+	public function setSuperAdmin($boolean)
+	{
+		if (true === $boolean) {
+			$this->addRole(static::ROLE_SUPER_ADMIN);
+		} else {
+			$this->removeRole(static::ROLE_SUPER_ADMIN);
+		}
 
-    public function removeRole($role)
-    {
-        if (false !== $key = array_search(strtoupper($role), $this->roles, true)) {
-            unset($this->roles[$key]);
-            $this->roles = array_values($this->roles);
-        }
+		return $this;
+	}
 
-        return $this;
-    }
+	public function removeRole($role)
+	{
+		if (false !== $key = array_search(strtoupper($role), $this->roles, true)) {
+			unset($this->roles[$key]);
+			$this->roles = array_values($this->roles);
+		}
 
-    /**
-     * @inheritDoc
-     */
-    public function eraseCredentials()
-    {
-    }
+		return $this;
+	}
 
-    /**
-     * @see \Serializable::serialize()
-     */
-    public function serialize()
-    {
-        return serialize([
-            $this->id,
-            $this->username,
-            $this->password,
-        ]);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function eraseCredentials()
+	{
+	}
 
-    /**
-     * @see \Serializable::unserialize()
-     */
-    public function unserialize($serialized)
-    {
-        list (
-            $this->id,
-            $this->username,
-            $this->password,
-            )
-            = unserialize($serialized);
-    }
+	/**
+	 * @see \Serializable::serialize()
+	 */
+	public function serialize()
+	{
+		return serialize([
+			$this->id,
+			$this->username,
+			$this->password,
+		]);
+	}
 
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
+	/**
+	 * @see \Serializable::unserialize()
+	 */
+	public function unserialize($serialized)
+	{
+		list (
+			$this->id,
+			$this->username,
+			$this->password,
+			)
+			= unserialize($serialized);
+	}
 
-    /**
-     * Get email
-     *
-     * @return string
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
+	/**
+	 * Get id
+	 *
+	 * @return integer
+	 */
+	public function getId()
+	{
+		return $this->id;
+	}
 
-    /**
-     * Set email
-     *
-     * @param string $email
-     * @return User
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
+	/**
+	 * Get email
+	 *
+	 * @return string
+	 */
+	public function getEmail()
+	{
+		return $this->email;
+	}
 
-        return $this;
-    }
+	/**
+	 * Set email
+	 *
+	 * @param string $email
+	 * @return User
+	 */
+	public function setEmail($email)
+	{
+		$this->email = $email;
 
-    /**
-     * Get isActive
-     *
-     * @return boolean
-     */
-    public function getIsActive()
-    {
-        return $this->isActive;
-    }
+		return $this;
+	}
 
-    /**
-     * Set isActive
-     *
-     * @param boolean $isActive
-     * @return User
-     */
-    public function setIsActive($isActive)
-    {
-        $this->isActive = $isActive;
+	/**
+	 * Get isActive
+	 *
+	 * @return boolean
+	 */
+	public function getIsActive()
+	{
+		return $this->isActive;
+	}
 
-        return $this;
-    }
+	/**
+	 * Set isActive
+	 *
+	 * @param boolean $isActive
+	 * @return User
+	 */
+	public function setIsActive($isActive)
+	{
+		$this->isActive = $isActive;
 
-    /**
-     * @return mixed
-     */
-    public function getLastLogin()
-    {
-        return $this->lastLogin;
-    }
+		return $this;
+	}
 
-    /**
-     * @param mixed $lastLogin
-     */
-    public function setLastLogin($lastLogin)
-    {
-        $this->lastLogin = $lastLogin;
-    }
+	/**
+	 * @return mixed
+	 */
+	public function getLastLogin()
+	{
+		return $this->lastLogin;
+	}
 
-    /**
-     * @return mixed
-     */
-    public function getHash()
-    {
-        return $this->hash;
-    }
+	/**
+	 * @param mixed $lastLogin
+	 */
+	public function setLastLogin($lastLogin)
+	{
+		$this->lastLogin = $lastLogin;
+	}
 
-    /**
-     * @param mixed $hash
-     */
-    public function setHash($hash)
-    {
-        $this->hash = $hash;
-    }
+	/**
+	 * @return mixed
+	 */
+	public function getRecoveryHash()
+	{
+		return $this->recoveryHash;
+	}
 
-    /**
-     * @return mixed
-     */
-    public function getEmailValidation()
-    {
-        return $this->emailValidation;
-    }
+	/**
+	 * @param mixed $recoveryHash
+	 */
+	public function setRecoveryHash($recoveryHash)
+	{
+		$this->recoveryHash = $recoveryHash;
+	}
 
-    /**
-     * @param mixed $emailValidation
-     */
-    public function setEmailValidation($emailValidation)
-    {
-        $this->emailValidation = $emailValidation;
-    }
+	/**
+	 * @return mixed
+	 */
+	public function getEmailValidation()
+	{
+		return $this->emailValidation;
+	}
 
+	/**
+	 * @param mixed $emailValidation
+	 */
+	public function setEmailValidation($emailValidation)
+	{
+		$this->emailValidation = $emailValidation;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getRecoveryExpireAt()
+	{
+		return $this->recoveryExpireAt;
+	}
+
+	/**
+	 * @param mixed $recoveryExpireAt
+	 */
+	public function setRecoveryExpireAt($recoveryExpireAt)
+	{
+		$this->recoveryExpireAt = $recoveryExpireAt;
+	}
 
 }

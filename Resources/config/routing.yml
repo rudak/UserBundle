@@ -36,6 +36,6 @@ rudakUser_reinit_mail_answer:
 
 rudakUser_password_lost_reinit:
     pattern: /enregistrer-nouveau-mot-de-passe
-    defaults: { _controller: RudakUserBundle:Password:recordNewPassword }
+    defaults: { _controller: RudakUserBundle:Password:emailAnswer }
     requirements:
         _method: POST
