@@ -1,0 +1,10 @@
+{% extends main_layout %}
+
+{% block body %}
+    {{ form(form) }}
+    <p>
+        <a href="{{ path('rudakUser_profile') }}">
+            Retour au profil
+        </a>
+    </p>
+{% endblock %}

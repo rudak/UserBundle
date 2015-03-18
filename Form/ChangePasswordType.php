@@ -1,5 +1,13 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: rudak
+ * Date: 18/03/2015
+ * Time: 18:10
+ */
+
 namespace Rudak\UserBundle\Form;
+
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -9,22 +17,24 @@ class ChangePasswordType extends AbstractType
 {
 	public function buildForm(FormBuilderInterface $builder, array $options)
 	{
-		$builder
-			->add('hash', 'hidden')
-			->add('newPassword', 'repeated', array(
-				'type' => 'password',
-				'invalid_message' => 'Les mots de passe doivent correspondre.',
-				'required' => true,
-				'first_options' => array('label' => 'Mot de passe'),
-				'second_options' => array('label' => 'Confirmez mot de passe'),
-			))
-			->setMethod('POST')
-			->add('Envoyer', 'submit');
+		$builder->add ('oldPassword', 'password', array(
+			'label' => 'Ancien mot de passe'
+		));
+		$builder->add ('newPassword', 'repeated', array(
+			'type' => 'password',
+			'invalid_message' => 'Les mots de passe doivent correspondre.',
+			'required' => true,
+			'first_options' => array('label' => 'Nouveau mot de passe'),
+			'second_options' => array('label' => 'Confirmez mot de passe'),
+		));
+		$builder->add ('submit', 'submit', array(
+			'label' => 'Envoyer'
+		));
 	}
 
-	public function configureOptions(OptionsResolver $resolver)
+	public function setOptions(OptionsResolver $resolver)
 	{
-		$resolver->setDefaults(array(
+		$resolver->setDefaults (array(
 			'data_class' => 'Rudak\UserBundle\Form\Model\ChangePassword',
 		));
 	}

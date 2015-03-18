@@ -1,3 +1,7 @@
+rudakUser_profile:
+    pattern: /mon-profil
+    defaults: { _controller: RudakUserBundle:Default:profile }
+
 index:
     pattern:     /index
     defaults: { _controller: RudakUserBundle:Default:index }
@@ -39,3 +43,9 @@ rudakUser_password_lost_reinit:
     defaults: { _controller: RudakUserBundle:Password:emailAnswer }
     requirements:
         _method: POST
+
+rudakUser_pwd_modification:
+    pattern: /modifier-mot-de-passe
+    defaults: { _controller: RudakUserBundle:Password:changePassword }
+
+

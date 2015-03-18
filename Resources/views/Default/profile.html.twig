@@ -1,0 +1,26 @@
+{% extends main_layout %}
+
+{% block title %}mon profile | {{ parent() }}{% endblock %}
+
+{% block body %}
+<h1>Mon profil</h1>
+<ul>
+    <li>Pseudo : {{ app.user.username }}</li>
+    <li>Adresse e-mail : {{ app.user.email }}</li>
+    <li>Inscrit depuis le {{ app.user.emailValidation|date('d/m/Y \\à H:i') }}</li>
+    <li>Derniere authentification : {{ app.user.lastLogin|date('d/m/Y \\à H:i') }}</li>
+    <li>
+        Droits :
+        <ul>
+            {% for role in app.user.roles %}
+            <li>{{ role }}</li>
+            {% endfor %}
+        </ul>
+    </li>
+</ul>
+<p>
+    <a href="{{ path('rudakUser_pwd_modification') }}">
+        Modifier mon mot de passe
+    </a>
+</p>
+{% endblock %}

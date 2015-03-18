@@ -3,17 +3,56 @@
 namespace Rudak\UserBundle\Controller;
 
 use Rudak\UserBundle\Entity\User;
+use Rudak\UserBundle\Event\ChangePasswordEvent;
+use Rudak\UserBundle\Event\PasswordRecoveredEvent;
+use Rudak\UserBundle\Event\PasswordRecoveryErrorEvent;
+use Rudak\UserBundle\Event\UserEvents;
 use Rudak\UserBundle\Form\ChangePasswordType;
 use Rudak\UserBundle\Form\LostPwdType;
 use Rudak\UserBundle\Form\Model\ChangePassword;
+use Rudak\UserBundle\Form\Model\RecoverPassword;
+use Rudak\UserBundle\Form\RecoverPasswordType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class PasswordController extends Controller
 {
 	public function lostAction()
 	{
 		return $this->render('RudakUserBundle:Password:lost.html.twig');
+	}
+
+	public function changePasswordAction(Request $request)
+	{
+		if (!$this->getUser()) {
+			$this->addFlash('notice', 'Vous devez etre loggé pour modifier votre mot de passe.');
+			return $this->redirectToRoute('homepage');
+		}
+		$changePassword = new ChangePassword();
+		$form           = $this->createForm(new ChangePasswordType(), $changePassword, array(
+			'action' => $this->generateUrl('rudakUser_pwd_modification')
+		));
+
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()) {
+			// evenement moddification de mot de passe
+			$changePasswordEvent = new ChangePasswordEvent($this->getUser(), $changePassword);
+			$this
+				->get('event_dispatcher')
+				->dispatch(UserEvents::USER_PASSWORD_CHANGE_SUCCESS, $changePasswordEvent);
+
+			$this->addFlash('notice', 'Mot de passe changé avec succès.');
+
+			return $this->redirect($this->generateUrl('rudakUser_profile'));
+		}
+
+		return $this->render('RudakUserBundle:Password:change.html.twig', array(
+			'form' => $form->createView()
+		));
+
 	}
 
 	/**
@@ -34,8 +73,9 @@ class PasswordController extends Controller
 			$this->addFlash('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
 			$em->persist($user);
 			$em->flush();
-		} else {
-			$this->addFlash('notice', 'Impossible de trouver un utilisateur correspondant.');
+		}
+		else {
+			$this->addFlash('notice', 'Le nom d’utilisateur que vous avez entré ne correspond pas au nom enregistré sur nos serveurs pour votre compte.');
 		}
 		return $this->redirectToRoute('homepage');
 	}
@@ -48,16 +88,16 @@ class PasswordController extends Controller
 	private function sendMail(User $user)
 	{
 		$message = \Swift_Message::newInstance()
-			->setContentType("text/html")
-			->setSubject('Mot de passe perdu')
-			->setFrom('robot@mon-site.fr')
-			->setTo($user->getEmail())
-			->setBody($this->renderView('RudakUserBundle:Email:link-password-init.html.twig', array(
-				'user' => $user,
-				'link' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
-					'hash' => $user->getRecoveryHash()
-				), true)
-			)));
+								 ->setContentType("text/html")
+								 ->setSubject('Mot de passe perdu')
+								 ->setFrom('robot@mon-site.fr')
+								 ->setTo($user->getEmail())
+								 ->setBody($this->renderView('RudakUserBundle:Email:link-password-init.html.twig', array(
+									 'user' => $user,
+									 'link' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
+										 'hash' => $user->getRecoveryHash()
+									 ), true)
+								 )));
 		$this->get('mailer')->send($message);
 	}
 
@@ -75,22 +115,39 @@ class PasswordController extends Controller
 			$this->addFlash('notice', 'Impossible de trouver une correspondance avec cette clé de réinitialisation.');
 			return $this->redirectToRoute('homepage');
 		}
+
 		if (new \Datetime('NOW') > $user->getRecoveryExpireAt()) {
-			$this->addFlash('notice', "Le code de réinitialisation est expiré, merci de recommencer la procedure.");
+			$this->launchErrorEvent($user);
+			$this->addFlash('notice', "Le code de réinitialisation est expiré, merci de recommencer la procédure.");
 			return $this->redirectToRoute('rudakUser_lost_pwd');
 		}
-		$changePasswordModel = new ChangePassword();
+		// Récupération du formulaire
+		$changePasswordModel = new RecoverPassword();
 		$changePasswordModel->setHash($hash);
 		$form = $this->getChangePasswordForm($changePasswordModel);
 
 		$form->handleRequest($request);
 		if ($form->isValid()) {
+			// TODO: passer ca dans l'event
 			$user->setRecoveryHash(null);
 			$user->setRecoveryExpireAt(null);
+			// ---
 			$user->setPassword($this->createPassword($user, $changePasswordModel->getNewPassword()));
+			// evenement changement de mot de passe ok
+			$passwordRecoveredEvent = new PasswordRecoveredEvent($user);
+			$this
+				->get('event_dispatcher')
+				->dispatch(UserEvents::USER_PASSWORD_RECOVERED, $passwordRecoveredEvent);
+
 			$em->persist($user);
 			$em->flush();
+
 			$this->addFlash('notice', "Le mot de passe a été changé avec succès.");
+			// si l'autologin est ok
+			if (true) {
+				//TODO : creer un argument de config
+				$this->autoLogin($user, $request);
+			}
 			return $this->redirectToRoute('homepage');
 		}
 		return $this->render('RudakUserBundle:Password:init-form.html.twig', array(
@@ -100,13 +157,26 @@ class PasswordController extends Controller
 	}
 
 	/**
+	 * Event correspondant a une erreur de reinitialisation de password
+	 * @param $user
+	 */
+	private function launchErrorEvent($user)
+	{
+		// evenement changement de mot de passe foiré
+		$passwordRecoveryErrorEvent = new PasswordRecoveryErrorEvent($user);
+		$this
+			->get('event_dispatcher')
+			->dispatch(UserEvents::USER_PASSWORD_RECOVERY_ERROR, $passwordRecoveryErrorEvent);
+	}
+
+	/**
 	 * Crée et renvoie le formulaire
-	 * @param ChangePassword $changePasswordModel
+	 * @param RecoverPassword $changePasswordModel
 	 * @return \Symfony\Component\Form\Form
 	 */
-	private function getChangePasswordForm(ChangePassword $changePasswordModel)
+	private function getChangePasswordForm(RecoverPassword $changePasswordModel)
 	{
-		return $this->createForm(new ChangePasswordType(), $changePasswordModel, array(
+		return $this->createForm(new RecoverPasswordType(), $changePasswordModel, array(
 			'action' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
 				'hash' => $changePasswordModel->getHash()
 			)),
@@ -114,13 +184,32 @@ class PasswordController extends Controller
 		));
 	}
 
+	/**
+	 * Renvoie un mot de passe a partir d'un user et d'un plain password
+	 * @param User $user
+	 * @param $plainPassword
+	 * @return mixed
+	 */
 	private function createPassword(User $user, $plainPassword)
 	{
 		$encoder = $this->container
 			->get('security.encoder_factory')
 			->getEncoder($user);
 		return $encoder->encodePassword($plainPassword, $user->getSalt());
-
 	}
 
+	/**
+	 * Log le gars qui vient de recover son password avec succès
+	 * @param User $User
+	 * @param $request
+	 */
+	private function autoLogin(User $User, $request)
+	{
+		$token = new UsernamePasswordToken($User, null, "secured_area", $User->getRoles());
+		$this->get("security.context")->setToken($token); //maintenant le gars est loggé
+
+		//maintenant il faut dispatch l'event du login 'classique'
+		$event = new InteractiveLoginEvent($request, $token);
+		$this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
+	}
 }

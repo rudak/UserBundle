@@ -3,6 +3,7 @@
 namespace Rudak\UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -11,9 +12,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(name="rudak_users")
  * @ORM\Entity(repositoryClass="Rudak\UserBundle\Entity\UserRepository")
  */
-class User implements UserInterface, \Serializable
+class User implements UserInterface, \Serializable, EquatableInterface
 {
-	const ROLE_DEFAULT = 'ROLE_USER';
+	const ROLE_DEFAULT     = 'ROLE_USER';
 	const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 	/**
 	 * @ORM\Column(type="array")
@@ -70,56 +71,6 @@ class User implements UserInterface, \Serializable
 		return $this->username;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getUsername()
-	{
-		return $this->username;
-	}
-
-	/**
-	 * Set username
-	 *
-	 * @param string $username
-	 * @return User
-	 */
-	public function setUsername($username)
-	{
-		$this->username = $username;
-
-		return $this;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function getSalt()
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function getPassword()
-	{
-		return $this->password;
-	}
-
-	/**
-	 * Set password
-	 *
-	 * @param string $password
-	 * @return User
-	 */
-	public function setPassword($password)
-	{
-		$this->password = $password;
-
-		return $this;
-	}
-
 	public function isSuperAdmin()
 	{
 		return $this->hasRole(static::ROLE_SUPER_ADMIN);
@@ -167,7 +118,8 @@ class User implements UserInterface, \Serializable
 	{
 		if (true === $boolean) {
 			$this->addRole(static::ROLE_SUPER_ADMIN);
-		} else {
+		}
+		else {
 			$this->removeRole(static::ROLE_SUPER_ADMIN);
 		}
 
@@ -334,6 +286,73 @@ class User implements UserInterface, \Serializable
 	public function setRecoveryExpireAt($recoveryExpireAt)
 	{
 		$this->recoveryExpireAt = $recoveryExpireAt;
+	}
+
+	public function isEqualTo(UserInterface $user)
+	{
+		if (!$user instanceof User) {
+			return false;
+		}
+
+		if ($this->password !== $user->getPassword()) {
+			return false;
+		}
+
+		if ($this->username !== $user->getUsername()) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getPassword()
+	{
+		return $this->password;
+	}
+
+	/**
+	 * Set password
+	 *
+	 * @param string $password
+	 * @return User
+	 */
+	public function setPassword($password)
+	{
+		$this->password = $password;
+
+		return $this;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getSalt()
+	{
+		return null;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getUsername()
+	{
+		return $this->username;
+	}
+
+	/**
+	 * Set username
+	 *
+	 * @param string $username
+	 * @return User
+	 */
+	public function setUsername($username)
+	{
+		$this->username = $username;
+
+		return $this;
 	}
 
 }

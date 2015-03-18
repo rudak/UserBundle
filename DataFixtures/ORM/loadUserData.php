@@ -61,10 +61,10 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface
 				'roles'    => ['ROLE_USER']
 			],
 			[
-				'username' => 'michel',
+				'username' => 'gustave',
 				'password' => '0000',
 				'email'    => 'michel@website.com',
-				'roles'    => ['ROLE_USER']
+				'roles'    => ['ROLE_USER', 'ROLE_MODO']
 			],
 			[
 				'username' => 'admin',
