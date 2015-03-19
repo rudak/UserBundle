@@ -8,12 +8,16 @@ services:
         tags:
             - { name: kernel.event_listener, event: security.interactive_login }
 
+    rudak_user.listener.accessDenied:
+        class: %kernel.listener.atd.access_denied.class%
+        scope: request
+        arguments: [@session, @router, @request]
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, method: onAccessDeniedException }
+
     rudak_user.handler.post_record:
         class: Rudak\UserBundle\Handler\PostRecordHandler
         arguments: [@mailer,@templating,@router]
-
-    rudak_user.handler.email_validation:
-        class: Rudak\UserBundle\Handler\EmailValidationHandler
 
     rudak_user.handler.user:
         class: Rudak\UserBundle\Handler\UserHandler
@@ -27,20 +31,26 @@ services:
 
     rudak.user.listener.email.validation:
         class: Rudak\UserBundle\Listener\EmailValidationListener
-        arguments: [@rudak_user.handler.email_validation]
+        arguments: [@rudak_user.handler.user]
         tags:
             - { name: kernel.event_listener, event: rudak_user.email_validation, method: validationSuccess }
-
-    rudak_user.listener.accessDenied:
-        class: %kernel.listener.atd.access_denied.class%
-        scope: request
-        arguments: [@session, @router, @request]
+    # Reinitialisation du mot de passe réussi
+    rudak.user.listener.change_password_success:
+        class: Rudak\UserBundle\Listener\ChangePasswordListener
+        arguments: [@rudak_user.handler.user]
         tags:
-           - { name: kernel.event_listener, event: kernel.exception, method: onAccessDeniedException }
+            - { name: kernel.event_listener, event: rudak_user.password_recovery.success, method: reinitSuccess }
 
-
+    # changement de mot de passe réussi
     rudak.user.listener.change_password_success:
         class: Rudak\UserBundle\Listener\ChangePasswordListener
         arguments: [@rudak_user.handler.user]
         tags:
             - { name: kernel.event_listener, event: rudak_user.password_change.success, method: onSuccess }
+
+    # changement de mot de passe raté
+    rudak.user.listener.change_password_error:
+        class: Rudak\UserBundle\Listener\ChangePasswordListener
+        arguments: [@rudak_user.handler.user]
+        tags:
+            - { name: kernel.event_listener, event: rudak_user.password_change.error, method: onError }

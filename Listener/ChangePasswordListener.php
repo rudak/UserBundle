@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rudak
- * Date: 01/03/2015
- * Time: 15:55
- */
 
 namespace Rudak\UserBundle\Listener;
 
@@ -22,11 +16,19 @@ class ChangePasswordListener
 		$this->userHandler = $userHandler;
 	}
 
-
 	public function onSuccess(ChangePasswordEvent $event)
 	{
-		$user = $event->getUser();
-		$this->userHandler->changeSuccessfull($user, $event->getChangePassword());
+		$this->userHandler->changePasswordSuccessfull($event->getUser());
+	}
+
+	public function onError(ChangePasswordEvent $event)
+	{
+		$this->userHandler->changePasswordError($event->getUser());
+	}
+
+	public function reinitSuccess(ChangePasswordEvent $event)
+	{
+		$this->userHandler->reinitPasswordSuccess($event->getUser());
 	}
 
 } 

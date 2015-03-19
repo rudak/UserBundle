@@ -59,6 +59,8 @@ class User implements UserInterface, \Serializable, EquatableInterface
 	 */
 	private $recoveryExpireAt;
 
+	private $plainPassword;
+
 
 	public function __construct()
 	{
@@ -329,14 +331,6 @@ class User implements UserInterface, \Serializable, EquatableInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function getSalt()
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public function getUsername()
 	{
 		return $this->username;
@@ -354,5 +348,31 @@ class User implements UserInterface, \Serializable, EquatableInterface
 
 		return $this;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getSalt()
+	{
+		return null;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getPlainPassword()
+	{
+		return $this->plainPassword;
+	}
+
+	/**
+	 * @param mixed $plainPassword
+	 */
+	public function setPlainPassword($plainPassword)
+	{
+		$this->plainPassword = $plainPassword;
+	}
+
+
 
 }

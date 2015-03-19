@@ -4,8 +4,6 @@ namespace Rudak\UserBundle\Controller;
 
 use Rudak\UserBundle\Entity\User;
 use Rudak\UserBundle\Event\ChangePasswordEvent;
-use Rudak\UserBundle\Event\PasswordRecoveredEvent;
-use Rudak\UserBundle\Event\PasswordRecoveryErrorEvent;
 use Rudak\UserBundle\Event\UserEvents;
 use Rudak\UserBundle\Form\ChangePasswordType;
 use Rudak\UserBundle\Form\LostPwdType;
@@ -37,16 +35,26 @@ class PasswordController extends Controller
 
 		$form->handleRequest($request);
 
-		if ($form->isSubmitted() && $form->isValid()) {
-			// evenement moddification de mot de passe
-			$changePasswordEvent = new ChangePasswordEvent($this->getUser(), $changePassword);
-			$this
-				->get('event_dispatcher')
-				->dispatch(UserEvents::USER_PASSWORD_CHANGE_SUCCESS, $changePasswordEvent);
+		if ($form->isSubmitted()) {
 
-			$this->addFlash('notice', 'Mot de passe changé avec succès.');
-
-			return $this->redirect($this->generateUrl('rudakUser_profile'));
+			$user = $this->getUser();
+			if ($form->isValid()) {
+				$user->setPlainPassword($changePassword->getNewPassword());
+				$changePasswordEvent = new ChangePasswordEvent($user);
+				// evenement moddification de mot de passe
+				$this
+					->get('event_dispatcher')
+					->dispatch(UserEvents::USER_PASSWORD_CHANGE_SUCCESS, $changePasswordEvent);
+				$this->addFlash('notice', 'Mot de passe changé avec succès.');
+				//return $this->redirect($this->generateUrl('rudakUser_profile'));
+			}
+			else {
+				// formulaire invalide
+				$changePasswordEvent = new ChangePasswordEvent($user);
+				$this
+					->get('event_dispatcher')
+					->dispatch(UserEvents::USER_PASSWORD_CHANGE_ERROR, $changePasswordEvent);
+			}
 		}
 
 		return $this->render('RudakUserBundle:Password:change.html.twig', array(
@@ -128,16 +136,11 @@ class PasswordController extends Controller
 
 		$form->handleRequest($request);
 		if ($form->isValid()) {
-			// TODO: passer ca dans l'event
-			$user->setRecoveryHash(null);
-			$user->setRecoveryExpireAt(null);
-			// ---
-			$user->setPassword($this->createPassword($user, $changePasswordModel->getNewPassword()));
-			// evenement changement de mot de passe ok
-			$passwordRecoveredEvent = new PasswordRecoveredEvent($user);
+			$user->setPlainPassword($changePasswordModel->getNewPassword());
+			$changePasswordEvent = new ChangePasswordEvent($user);
 			$this
 				->get('event_dispatcher')
-				->dispatch(UserEvents::USER_PASSWORD_RECOVERED, $passwordRecoveredEvent);
+				->dispatch(UserEvents::USER_PASSWORD_RECOVERED, $changePasswordEvent);
 
 			$em->persist($user);
 			$em->flush();
@@ -185,20 +188,6 @@ class PasswordController extends Controller
 	}
 
 	/**
-	 * Renvoie un mot de passe a partir d'un user et d'un plain password
-	 * @param User $user
-	 * @param $plainPassword
-	 * @return mixed
-	 */
-	private function createPassword(User $user, $plainPassword)
-	{
-		$encoder = $this->container
-			->get('security.encoder_factory')
-			->getEncoder($user);
-		return $encoder->encodePassword($plainPassword, $user->getSalt());
-	}
-
-	/**
 	 * Log le gars qui vient de recover son password avec succès
 	 * @param User $User
 	 * @param $request
@@ -211,5 +200,19 @@ class PasswordController extends Controller
 		//maintenant il faut dispatch l'event du login 'classique'
 		$event = new InteractiveLoginEvent($request, $token);
 		$this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
+	}
+
+	/**
+	 * Renvoie un mot de passe a partir d'un user et d'un plain password
+	 * @param User $user
+	 * @param $plainPassword
+	 * @return mixed
+	 */
+	private function createPassword(User $user, $plainPassword)
+	{
+		$encoder = $this->container
+			->get('security.encoder_factory')
+			->getEncoder($user);
+		return $encoder->encodePassword($plainPassword, $user->getSalt());
 	}
 }

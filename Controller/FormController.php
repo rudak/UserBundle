@@ -19,7 +19,7 @@ class FormController extends Controller
 			$session->remove(SecurityContext::AUTHENTICATION_ERROR);
 		}
 
-		return $this->render('RudakUserBundle:Form:login.html.twig', [
+		return $this->render('RudakUserBundle:Form:login-alone.html.twig', [
 			// last username entered by the user
 			'last_username' => $session->get(SecurityContext::LAST_USERNAME),
 			'error'         => $error,

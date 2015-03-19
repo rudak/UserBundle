@@ -33,12 +33,10 @@ class UserHandler
 	/**
 	 * Méthode appelée quand on change de mot de passe
 	 * @param User $user
-	 * @param ChangePassword $changePassword
 	 */
-	public function changeSuccessfull(User $user, ChangePassword $changePassword)
+	public function changePasswordSuccessfull(User $user)
 	{
-		$newPassword = $this->getEncodedPassword($user, $changePassword->getNewPassword());
-		$user->setPassword($newPassword);
+		$user->setPassword($this->getEncodedPassword($user));
 
 		$this->sendMail($user, array(
 			'subject' => "Modification de votre mot de passe.",
@@ -52,24 +50,25 @@ class UserHandler
 		$this->em->flush();
 	}
 
+
 	/**
 	 * Retourne le mot de passe encodé
 	 * @param $user
-	 * @param $plainPassword
 	 * @return string
 	 */
-	private function getEncodedPassword($user, $plainPassword)
+	private function getEncodedPassword(User $user)
 	{
 		$encoder = $this->encoder->getEncoder($user);
-		return $encoder->encodePassword($plainPassword, $user->getSalt());
+		return $encoder->encodePassword($user->getPlainPassword(), $user->getSalt());
 	}
+
 
 	/**
 	 * Envoi le mail pour prevenir du changement de mot de passe
 	 * @param $user
 	 * @param array $options
 	 */
-	private function sendMail($user, array $options)
+	private function sendMail(User $user, array $options)
 	{
 		$message = \Swift_Message::newInstance()
 								 ->setSubject($options['subject'])
@@ -79,6 +78,41 @@ class UserHandler
 								 ->setBody($options['body']);
 		// envoi
 		$this->mailer->send($message);
+	}
+
+	/**
+	 * Intervient lors du success de la réinitialisation du mot de passe
+	 * @param User $user
+	 */
+	public function reinitPasswordSuccess(User $user)
+	{
+		$user->setRecoveryHash(null);
+		$user->setRecoveryExpireAt(null);
+		$user->setEmailValidation(new \Datetime('NOW'));
+		$user->setIsActive(true);
+		$user->setPassword($this->getEncodedPassword($user));
+		$user->setPlainPassword(null);
+		$this->sendMail($user, array(
+			'subject' => "Réinitialisation de votre mot de passe.",
+			'from' => 'admin@votresite.com',
+			'body' => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
+				'user' => $user,
+				'date' => new \Datetime('NOW'),
+			))
+		));
+	}
+
+
+	public function changePasswordError(User $user)
+	{
+		$this->sendMail($user, array(
+			'subject' => "Echec de la modification de votre mot de passe.",
+			'from' => 'admin@votresite.com',
+			'body' => $this->templating->render('RudakUserBundle:Email:change-password-error.html.twig', array(
+				'user' => $user,
+				'date' => new \Datetime('NOW'),
+			))
+		));
 	}
 
 }

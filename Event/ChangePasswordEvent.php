@@ -10,18 +10,15 @@ namespace Rudak\UserBundle\Event;
 
 
 use Rudak\UserBundle\Entity\User;
-use Rudak\UserBundle\Form\Model\ChangePassword;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 
 class ChangePasswordEvent extends KernelEvent
 {
 	protected $user;
-	protected $changePassword;
 
-	public function __construct(User $user, ChangePassword $changePassword)
+	public function __construct(User $user)
 	{
-		$this->user           = $user;
-		$this->changePassword = $changePassword;
+		$this->user = $user;
 	}
 
 	/**
@@ -38,22 +35,6 @@ class ChangePasswordEvent extends KernelEvent
 	public function setUser($user)
 	{
 		$this->user = $user;
-	}
-
-	/**
-	 * @return ChangePassword
-	 */
-	public function getChangePassword()
-	{
-		return $this->changePassword;
-	}
-
-	/**
-	 * @param ChangePassword $changePassword
-	 */
-	public function setChangePassword($changePassword)
-	{
-		$this->changePassword = $changePassword;
 	}
 
 
