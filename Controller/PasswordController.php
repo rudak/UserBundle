@@ -46,7 +46,7 @@ class PasswordController extends Controller
 					->get('event_dispatcher')
 					->dispatch(UserEvents::USER_PASSWORD_CHANGE_SUCCESS, $changePasswordEvent);
 				$this->addFlash('notice', 'Mot de passe changé avec succès.');
-				//return $this->redirect($this->generateUrl('rudakUser_profile'));
+				return $this->redirect($this->generateUrl('rudakUser_profile'));
 			}
 			else {
 				// formulaire invalide
