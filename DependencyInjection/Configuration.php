@@ -12,14 +12,18 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigTreeBuilder()
-    {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('rudak_user');
-
-        return $treeBuilder;
-    }
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getConfigTreeBuilder()
+	{
+		$treeBuilder = new TreeBuilder();
+		$rootNode    = $treeBuilder->root('rudak_user');
+		$rootNode->children()
+			->scalarNode('autologin_before_reinit')
+			->defaultValue(true)
+			->end()
+			->end();
+		return $treeBuilder;
+	}
 }

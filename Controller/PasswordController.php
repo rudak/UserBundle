@@ -147,8 +147,7 @@ class PasswordController extends Controller
 
 			$this->addFlash('notice', "Le mot de passe a été changé avec succès.");
 			// si l'autologin est ok
-			if (true) {
-				//TODO : creer un argument de config
+			if ($this->container->getParameter('autologin_before_reinit')) {
 				$this->autoLogin($user, $request);
 			}
 			return $this->redirectToRoute('homepage');
