@@ -47,8 +47,7 @@ class PasswordController extends Controller
 					->dispatch(UserEvents::USER_PASSWORD_CHANGE_SUCCESS, $changePasswordEvent);
 				$this->addFlash('notice', 'Mot de passe changé avec succès.');
 				return $this->redirect($this->generateUrl('rudakUser_profile'));
-			}
-			else {
+			} else {
 				// formulaire invalide
 				$changePasswordEvent = new ChangePasswordEvent($user);
 				$this
@@ -81,8 +80,7 @@ class PasswordController extends Controller
 			$this->addFlash('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
 			$em->persist($user);
 			$em->flush();
-		}
-		else {
+		} else {
 			$this->addFlash('notice', 'Le nom d’utilisateur que vous avez entré ne correspond pas au nom enregistré sur nos serveurs pour votre compte.');
 		}
 		return $this->redirectToRoute('homepage');
@@ -96,16 +94,16 @@ class PasswordController extends Controller
 	private function sendMail(User $user)
 	{
 		$message = \Swift_Message::newInstance()
-								 ->setContentType("text/html")
-								 ->setSubject('Mot de passe perdu')
-								 ->setFrom('robot@mon-site.fr')
-								 ->setTo($user->getEmail())
-								 ->setBody($this->renderView('RudakUserBundle:Email:link-password-init.html.twig', array(
-									 'user' => $user,
-									 'link' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
-										 'hash' => $user->getRecoveryHash()
-									 ), true)
-								 )));
+			->setContentType("text/html")
+			->setSubject('Mot de passe perdu')
+			->setFrom('robot@mon-site.fr')
+			->setTo($user->getEmail())
+			->setBody($this->renderView('RudakUserBundle:Email:link-password-init.html.twig', array(
+				'user' => $user,
+				'link' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
+					'hash' => $user->getRecoveryHash()
+				), true)
+			)));
 		$this->get('mailer')->send($message);
 	}
 
