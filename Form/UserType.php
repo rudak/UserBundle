@@ -31,8 +31,15 @@ class UserType extends AbstractType
 				'second_options' => ['label' => 'Mot de passe (Confirmation)'],
 			]);
 		}
-		$builder->add('isActive')
-				->add('blocked');
+		$builder
+			->add('isActive', 'checkbox', array(
+				'label' => 'Activé',
+				'required' => false
+			))
+			->add('blocked', 'checkbox', array(
+				'label' => 'Bloqué',
+				'required' => false
+			));
 		$builder->add('roles', 'choice', array(
 			'choices' => array(
 				'ROLE_USER' => 'Utilisateur',
