@@ -41,7 +41,6 @@ class RecordController extends Controller
         $form = $this->createNewForm($User);
         $form->handleRequest($request);
         if ($form->isValid()) {
-            $data = $form->getData();
             $User->setPassword($this->createPassword($User));
 
             if (!$this->checkDuplicate($User)) {
@@ -55,7 +54,7 @@ class RecordController extends Controller
                 $em->persist($User);
                 $em->flush();
 
-                // $this->addFlash('notice', 'Utilisateur ' . $User->getUsername() . ' créé.');
+                $this->addFlash('notice', 'Utilisateur ' . $User->getUsername() . ' créé.');
 
                 return $this->render('RudakUserBundle:Record:after.html.twig', array(
                     'user' => $User

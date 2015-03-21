@@ -11,7 +11,6 @@ namespace Rudak\UserBundle\Handler;
 
 use Doctrine\ORM\EntityManager;
 use Rudak\UserBundle\Entity\User;
-use Rudak\UserBundle\Form\Model\ChangePassword;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Templating\EngineInterface;
 
@@ -115,4 +114,10 @@ class UserHandler
 		));
 	}
 
+	public function emailValidationSuccess(User $user)
+	{
+		$user->setRecoveryHash(null);
+		$user->setIsActive(true);
+		$user->setEmailValidation(new \Datetime('NOW'));
+	}
 }

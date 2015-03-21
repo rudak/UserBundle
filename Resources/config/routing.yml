@@ -1,3 +1,7 @@
+rudak_user_admin_user:
+    resource: "@RudakUserBundle/Resources/config/routing/user.yml"
+    prefix:   /admin/user
+
 rudakUser_profile:
     pattern: /mon-profil
     defaults: { _controller: RudakUserBundle:Default:profile }

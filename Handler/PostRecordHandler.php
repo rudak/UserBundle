@@ -25,7 +25,7 @@ class PostRecordHandler
             return;
         }
         // Création du hash de vérification
-        $this->user->setHash(sha1(uniqid(rand(), TRUE)));
+        $this->user->setRecoveryHash(sha1(uniqid(rand(), TRUE)));
         // creation du mail
         $message = \Swift_Message::newInstance()
             ->setSubject("Validation de votre adresse email")
@@ -42,7 +42,7 @@ class PostRecordHandler
         return $this->templating->render('RudakUserBundle:Email:post-record.html.twig', array(
             'user' => $this->user,
             'site' => $this->router->generate('record_validing_email', array(
-                'hash' => $this->user->getHash(),
+                'hash' => $this->user->getRecoveryHash(),
             ), true)
         ));
     }

@@ -3,6 +3,7 @@
 namespace Rudak\UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -12,14 +13,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(name="rudak_users")
  * @ORM\Entity(repositoryClass="Rudak\UserBundle\Entity\UserRepository")
  */
-class User implements UserInterface, \Serializable, EquatableInterface
+class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 {
 	const ROLE_DEFAULT     = 'ROLE_USER';
 	const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
-	/**
-	 * @ORM\Column(type="array")
-	 */
-	private $roles;
+
 	/**
 	 * @ORM\Column(type="integer")
 	 * @ORM\Id
@@ -39,9 +37,17 @@ class User implements UserInterface, \Serializable, EquatableInterface
 	 */
 	private $email;
 	/**
-	 * @ORM\Column(name="is_active", type="boolean")
+	 * @ORM\Column(name="is_active", type="boolean", nullable=true)
 	 */
 	private $isActive;
+	/**
+	 * @ORM\Column(name="blocked", type="boolean", nullable=true)
+	 */
+	private $blocked;
+	/**
+	 * @ORM\Column(type="array")
+	 */
+	private $roles;
 	/**
 	 * @ORM\Column(name="lastLogin", type="datetime", nullable=true)
 	 */
@@ -55,12 +61,11 @@ class User implements UserInterface, \Serializable, EquatableInterface
 	 */
 	private $recoveryHash;
 	/**
-	 * @ORM\Column(name="recovery_date", type="datetime", nullable=true)
+	 * @ORM\Column(name="recoveryExpireAt", type="datetime", nullable=true)
 	 */
 	private $recoveryExpireAt;
 
 	private $plainPassword;
-
 
 	public function __construct()
 	{
@@ -143,6 +148,7 @@ class User implements UserInterface, \Serializable, EquatableInterface
 	 */
 	public function eraseCredentials()
 	{
+		$this->plainPassword = null;
 	}
 
 	/**
@@ -229,6 +235,22 @@ class User implements UserInterface, \Serializable, EquatableInterface
 	/**
 	 * @return mixed
 	 */
+	public function getBlocked()
+	{
+		return $this->blocked;
+	}
+
+	/**
+	 * @param mixed $blocked
+	 */
+	public function setBlocked($blocked)
+	{
+		$this->blocked = $blocked;
+	}
+
+	/**
+	 * @return mixed
+	 */
 	public function getLastLogin()
 	{
 		return $this->lastLogin;
@@ -308,6 +330,22 @@ class User implements UserInterface, \Serializable, EquatableInterface
 	}
 
 	/**
+	 * @return mixed
+	 */
+	public function getPlainPassword()
+	{
+		return $this->plainPassword;
+	}
+
+	/**
+	 * @param mixed $plainPassword
+	 */
+	public function setPlainPassword($plainPassword)
+	{
+		$this->plainPassword = $plainPassword;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function getPassword()
@@ -358,21 +396,65 @@ class User implements UserInterface, \Serializable, EquatableInterface
 	}
 
 	/**
-	 * @return mixed
+	 * Checks whether the user's account has expired.
+	 *
+	 * Internally, if this method returns false, the authentication system
+	 * will throw an AccountExpiredException and prevent login.
+	 *
+	 * @return bool true if the user's account is non expired, false otherwise
+	 *
+	 * @see AccountExpiredException
 	 */
-	public function getPlainPassword()
+	public function isAccountNonExpired()
 	{
-		return $this->plainPassword;
+		return true;
 	}
 
 	/**
-	 * @param mixed $plainPassword
+	 * Checks whether the user is locked.
+	 *
+	 * Internally, if this method returns false, the authentication system
+	 * will throw a LockedException and prevent login.
+	 *
+	 * @return bool true if the user is not locked, false otherwise
+	 *
+	 * @see LockedException
 	 */
-	public function setPlainPassword($plainPassword)
+	public function isAccountNonLocked()
 	{
-		$this->plainPassword = $plainPassword;
+		return (true === $this->blocked) ? false : true;
+
 	}
 
+	/**
+	 * Checks whether the user's credentials (password) has expired.
+	 *
+	 * Internally, if this method returns false, the authentication system
+	 * will throw a CredentialsExpiredException and prevent login.
+	 *
+	 * @return bool true if the user's credentials are non expired, false otherwise
+	 *
+	 * @see CredentialsExpiredException
+	 */
+	public function isCredentialsNonExpired()
+	{
+		return true;
+	}
+
+	/**
+	 * Checks whether the user is enabled.
+	 *
+	 * Internally, if this method returns false, the authentication system
+	 * will throw a DisabledException and prevent login.
+	 *
+	 * @return bool true if the user is enabled, false otherwise
+	 *
+	 * @see DisabledException
+	 */
+	public function isEnabled()
+	{
+		return (true === $this->blocked) ? false : true;
+	}
 
 
 }
