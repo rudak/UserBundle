@@ -11,6 +11,7 @@ namespace Rudak\UserBundle\Handler;
 
 use Doctrine\ORM\EntityManager;
 use Rudak\UserBundle\Entity\User;
+use Symfony\Component\Routing\Router;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Templating\EngineInterface;
 
@@ -20,13 +21,15 @@ class UserHandler
 	private $templating;
 	private $em;
 	private $encoder;
+	private $router;
 
-	function __construct(\Swift_Mailer $mailer, EngineInterface $templating, EntityManager $entityManager, EncoderFactoryInterface $encoder)
+	function __construct(\Swift_Mailer $mailer, EngineInterface $templating, EntityManager $entityManager, EncoderFactoryInterface $encoder, Router $router)
 	{
 		$this->mailer     = $mailer;
 		$this->templating = $templating;
 		$this->em         = $entityManager;
 		$this->encoder    = $encoder;
+		$this->router     = $router;
 	}
 
 	/**
@@ -37,9 +40,10 @@ class UserHandler
 	{
 		$user->setPassword($this->getEncodedPassword($user));
 
-		$this->sendMail($user, array(
+		$this->sendMail(array(
 			'subject' => "Modification de votre mot de passe.",
 			'from' => 'admin@votresite.com',
+			'to' => $user->getEmail(),
 			'body' => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
 				'user' => $user,
 				'date' => new \Datetime('NOW'),
@@ -67,13 +71,13 @@ class UserHandler
 	 * @param $user
 	 * @param array $options
 	 */
-	private function sendMail(User $user, array $options)
+	private function sendMail(array $options)
 	{
 		$message = \Swift_Message::newInstance()
 								 ->setSubject($options['subject'])
 								 ->setFrom($options['from'])
 								 ->setContentType("text/html")
-								 ->setTo($user->getEmail())
+								 ->setTo($options['to'])
 								 ->setBody($options['body']);
 		// envoi
 		$this->mailer->send($message);
@@ -85,15 +89,16 @@ class UserHandler
 	 */
 	public function reinitPasswordSuccess(User $user)
 	{
-		$user->setRecoveryHash(null);
-		$user->setRecoveryExpireAt(null);
+		$user->setSecurityHash(null);
+		$user->setSecurityHashExpireAt(null);
 		$user->setEmailValidation(new \Datetime('NOW'));
 		$user->setIsActive(true);
 		$user->setPassword($this->getEncodedPassword($user));
 		$user->setPlainPassword(null);
-		$this->sendMail($user, array(
+		$this->sendMail(array(
 			'subject' => "Réinitialisation de votre mot de passe.",
 			'from' => 'admin@votresite.com',
+			'to' => $user->getEmail(),
 			'body' => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
 				'user' => $user,
 				'date' => new \Datetime('NOW'),
@@ -104,9 +109,10 @@ class UserHandler
 
 	public function changePasswordError(User $user)
 	{
-		$this->sendMail($user, array(
+		$this->sendMail(array(
 			'subject' => "Echec de la modification de votre mot de passe.",
 			'from' => 'admin@votresite.com',
+			'to' => $user->getEmail(),
 			'body' => $this->templating->render('RudakUserBundle:Email:change-password-error.html.twig', array(
 				'user' => $user,
 				'date' => new \Datetime('NOW'),
@@ -116,8 +122,50 @@ class UserHandler
 
 	public function emailValidationSuccess(User $user)
 	{
-		$user->setRecoveryHash(null);
+		$user->setSecurityHash(null);
 		$user->setIsActive(true);
 		$user->setEmailValidation(new \Datetime('NOW'));
+	}
+
+	public function changeEmailRequest(User $user)
+	{
+		$newEmail = $user->getEmailTmp();
+		$user->setSecurityHash(md5(uniqid()));
+		$user->setSecurityHashExpireAt(new \DateTime('+1 hour'));
+		$this->sendMail(array(
+			'subject' => 'Demande de changement d\'adresse email',
+			'from' => 'security@monsite.fr',
+			'to' => $newEmail,
+			'body' => $this->templating->render('RudakUserBundle:Email:change-email-request.html.twig', array(
+				'user' => $user,
+				'link' => $this->router->generate('rudakUser_email_change_confirmation', array(
+					'hash' => $user->getSecurityHash(),
+				), true),
+				'date' => new \Datetime('NOW'),
+			)),
+		));
+		$this->em->persist($user);
+		$this->em->flush();
+	}
+
+	public function changeEmailSuccess(User $user)
+	{
+		$newEmail = $user->getEmailTmp();
+		$this->sendMail(array(
+			'subject' => 'Changement d\'adresse email effectuée',
+			'from' => 'security@monsite.fr',
+			'to' => $newEmail,
+			'body' => $this->templating->render('RudakUserBundle:Email:change-email.html.twig', array(
+				'user' => $user,
+				'date' => new \Datetime('NOW'),
+			)),
+		));
+		$user->setEmailTmp(null);
+		$user->setEmail($newEmail);
+		$user->setSecurityHash(null);
+		$user->setSecurityHashExpireAt(null);
+
+		$this->em->persist($user);
+		$this->em->flush();
 	}
 }

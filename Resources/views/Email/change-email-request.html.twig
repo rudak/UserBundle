@@ -1,0 +1,16 @@
+<h1>Bonjour {{ user.username }}</h1>
+<p>
+    Vous recevez ce mail car vous avez demandé un changement d'adresse email
+    à {{ date|date('H:i:s \\l\\e d/m/Y') }}. Votre adresse email était jusqu'ici {{ user.email }}
+    et vous la remplacez par {{ user.emailTmp }}. Pour valider cette adresse, vous devez cliquer
+    sur le lien ci dessous. Attention vous n'avez qu'une heure pour effectuer cette manipulation.
+    <br/>
+    <a href="{{ link }}">
+        Lien de validation de l'adresse email
+    </a>
+</p>
+
+<hr/>
+<p>
+    (Cette action a été effectuée depuis l'IP {{ app.request.server.get("SERVER_ADDR") }} )
+</p>

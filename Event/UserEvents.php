@@ -10,4 +10,6 @@ final class UserEvents
 	const USER_PASSWORD_RECOVERY_ERROR = 'rudak_user.password_recovery.error';
 	const USER_PASSWORD_CHANGE_SUCCESS = 'rudak_user.password_change.success';
 	const USER_PASSWORD_CHANGE_ERROR   = 'rudak_user.password_change.error';
+	const USER_EMAIL_CHANGE_REQUEST   = 'rudak_user.email_change.request';
+	const USER_EMAIL_CHANGE_SUCCESS   = 'rudak_user.email_change.success';
 }

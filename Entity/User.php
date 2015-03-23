@@ -32,10 +32,17 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	 * @ORM\Column(type="string", length=255)
 	 */
 	private $password;
+
 	/**
-	 * @ORM\Column(type="string", length=60, unique=true)
+	 * @ORM\Column(type="string", length=80, unique=true)
 	 */
 	private $email;
+
+	/**
+	 * @ORM\Column(type="string", length=78, nullable=true)
+	 */
+	private $emailTmp;
+
 	/**
 	 * @ORM\Column(name="is_active", type="boolean", nullable=true)
 	 */
@@ -59,11 +66,11 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	/**
 	 * @ORM\Column(type="string", length=70, nullable=true)
 	 */
-	private $recoveryHash;
+	private $securityHash;
 	/**
-	 * @ORM\Column(name="recoveryExpireAt", type="datetime", nullable=true)
+	 * @ORM\Column(name="SecurityHashExpireAt", type="datetime", nullable=true)
 	 */
-	private $recoveryExpireAt;
+	private $SecurityHashExpireAt;
 
 	private $plainPassword;
 
@@ -210,6 +217,22 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	}
 
 	/**
+	 * @return mixed
+	 */
+	public function getEmailTmp()
+	{
+		return $this->emailTmp;
+	}
+
+	/**
+	 * @param mixed $emailTmp
+	 */
+	public function setEmailTmp($emailTmp)
+	{
+		$this->emailTmp = $emailTmp;
+	}
+
+	/**
 	 * Get isActive
 	 *
 	 * @return boolean
@@ -267,17 +290,17 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	/**
 	 * @return mixed
 	 */
-	public function getRecoveryHash()
+	public function getSecurityHash()
 	{
-		return $this->recoveryHash;
+		return $this->securityHash;
 	}
 
 	/**
-	 * @param mixed $recoveryHash
+	 * @param mixed $securityHash
 	 */
-	public function setRecoveryHash($recoveryHash)
+	public function setSecurityHash($securityHash)
 	{
-		$this->recoveryHash = $recoveryHash;
+		$this->securityHash = $securityHash;
 	}
 
 	/**
@@ -299,17 +322,17 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	/**
 	 * @return mixed
 	 */
-	public function getRecoveryExpireAt()
+	public function getSecurityHashExpireAt()
 	{
-		return $this->recoveryExpireAt;
+		return $this->SecurityHashExpireAt;
 	}
 
 	/**
-	 * @param mixed $recoveryExpireAt
+	 * @param mixed $SecurityHashExpireAt
 	 */
-	public function setRecoveryExpireAt($recoveryExpireAt)
+	public function setSecurityHashExpireAt($SecurityHashExpireAt)
 	{
-		$this->recoveryExpireAt = $recoveryExpireAt;
+		$this->SecurityHashExpireAt = $SecurityHashExpireAt;
 	}
 
 	public function isEqualTo(UserInterface $user)

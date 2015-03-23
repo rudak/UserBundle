@@ -98,7 +98,7 @@ class UserRepository extends EntityRepository implements UserProviderInterface
 	{
 		$qb = $this
 			->createQueryBuilder('u')
-			->where('u.recoveryHash = :hash')->setParameter('hash', $hash)
+			->where('u.securityHash = :hash')->setParameter('hash', $hash)
 			->getQuery();
 		return $qb->getOneOrNullResult();
 	}

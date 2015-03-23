@@ -21,7 +21,7 @@ services:
 
     rudak_user.handler.user:
         class: Rudak\UserBundle\Handler\UserHandler
-        arguments: [@mailer,@templating,@doctrine.orm.entity_manager,@security.encoder_factory]
+        arguments: [@mailer,@templating,@doctrine.orm.entity_manager,@security.encoder_factory,@router]
 
     rudak.user.listener.post.record:
         class: Rudak\UserBundle\Listener\PostRecordListener
@@ -54,3 +54,18 @@ services:
         arguments: [@rudak_user.handler.user]
         tags:
             - { name: kernel.event_listener, event: rudak_user.password_change.error, method: onError }
+
+    # requete de changement d'adresse email
+    rudak.user.listener.change_email_request:
+        class: Rudak\UserBundle\Listener\ChangeEmailListener
+        arguments: [@rudak_user.handler.user]
+        tags:
+            - { name: kernel.event_listener, event: rudak_user.email_change.request, method: emailChangeRequest }
+
+    # changement d'adresse email réussi
+    rudak.user.listener.change_email_success:
+        class: Rudak\UserBundle\Listener\ChangeEmailListener
+        arguments: [@rudak_user.handler.user]
+        tags:
+            - { name: kernel.event_listener, event: rudak_user.email_change.success, method: emailChangeSuccess }
+

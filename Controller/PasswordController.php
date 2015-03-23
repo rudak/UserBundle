@@ -74,8 +74,8 @@ class PasswordController extends Controller
 		$user = $em->getRepository('RudakUserBundle:User')->checkIfUserExists($data);
 
 		if ($user && $user instanceof User) {
-			$user->setRecoveryHash(sha1(md5(uniqid(null, true))));
-			$user->setRecoveryExpireAt(new \Datetime('+1 hour'));
+			$user->setSecurityHash(sha1(md5(uniqid(null, true))));
+			$user->setSecurityHashExpireAt(new \Datetime('+1 hour'));
 			$this->sendMail($user);
 			$this->addFlash('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
 			$em->persist($user);
@@ -101,7 +101,7 @@ class PasswordController extends Controller
 			->setBody($this->renderView('RudakUserBundle:Email:link-password-init.html.twig', array(
 				'user' => $user,
 				'link' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
-					'hash' => $user->getRecoveryHash()
+					'hash' => $user->getSecurityHash()
 				), true)
 			)));
 		$this->get('mailer')->send($message);
@@ -122,7 +122,7 @@ class PasswordController extends Controller
 			return $this->redirectToRoute('homepage');
 		}
 
-		if (new \Datetime('NOW') > $user->getRecoveryExpireAt()) {
+		if (new \Datetime('NOW') > $user->getSecurityHashExpireAt()) {
 			$this->launchErrorEvent($user);
 			$this->addFlash('notice', "Le code de réinitialisation est expiré, merci de recommencer la procédure.");
 			return $this->redirectToRoute('rudakUser_lost_pwd');

@@ -52,4 +52,10 @@ rudakUser_pwd_modification:
     pattern: /modifier-mot-de-passe
     defaults: { _controller: RudakUserBundle:Password:changePassword }
 
+rudakUser_email_modification:
+    pattern: /modifier-mon-email
+    defaults: { _controller: RudakUserBundle:Email:changeEmail }
 
+rudakUser_email_change_confirmation:
+    pattern: /confirmer-nouvelle-adresse-email/{hash}
+    defaults: { _controller: RudakUserBundle:Email:confirmationEmail }

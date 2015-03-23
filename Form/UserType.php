@@ -48,7 +48,7 @@ class UserType extends AbstractType
 			),
 			'multiple' => true
 		))
-				->add('email');
+				->add('email', 'email');
 	}
 
 	/**

@@ -42,7 +42,7 @@ class PostRecordHandler
         return $this->templating->render('RudakUserBundle:Email:post-record.html.twig', array(
             'user' => $this->user,
             'site' => $this->router->generate('record_validing_email', array(
-                'hash' => $this->user->getRecoveryHash(),
+                'hash' => $this->user->getSecurityHash(),
             ), true)
         ));
     }
