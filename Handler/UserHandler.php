@@ -17,19 +17,27 @@ use Symfony\Component\Templating\EngineInterface;
 
 class UserHandler
 {
-	private $mailer;
-	private $templating;
-	private $em;
-	private $encoder;
-	private $router;
+	private   $mailer;
+	private   $templating;
+	private   $em;
+	private   $encoder;
+	private   $router;
+	protected $container;
+	private   $config;
 
-	function __construct(\Swift_Mailer $mailer, EngineInterface $templating, EntityManager $entityManager, EncoderFactoryInterface $encoder, Router $router)
+	function __construct(\Swift_Mailer $mailer,
+						 EngineInterface $templating,
+						 EntityManager $entityManager,
+						 EncoderFactoryInterface $encoder,
+						 Router $router,
+						 $config)
 	{
 		$this->mailer     = $mailer;
 		$this->templating = $templating;
 		$this->em         = $entityManager;
 		$this->encoder    = $encoder;
 		$this->router     = $router;
+		$this->config     = $config;
 	}
 
 	/**
@@ -42,9 +50,9 @@ class UserHandler
 
 		$this->sendMail(array(
 			'subject' => "Modification de votre mot de passe.",
-			'from' => 'admin@votresite.com',
-			'to' => $user->getEmail(),
-			'body' => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
+			'from'    => $this->config['from'],
+			'to'      => $user->getEmail(),
+			'body'    => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
 				'user' => $user,
 				'date' => new \Datetime('NOW'),
 			))
@@ -97,9 +105,9 @@ class UserHandler
 		$user->setPlainPassword(null);
 		$this->sendMail(array(
 			'subject' => "Réinitialisation de votre mot de passe.",
-			'from' => 'admin@votresite.com',
-			'to' => $user->getEmail(),
-			'body' => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
+			'from'    => $this->config['from'],
+			'to'      => $user->getEmail(),
+			'body'    => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
 				'user' => $user,
 				'date' => new \Datetime('NOW'),
 			))
@@ -111,9 +119,9 @@ class UserHandler
 	{
 		$this->sendMail(array(
 			'subject' => "Echec de la modification de votre mot de passe.",
-			'from' => 'admin@votresite.com',
-			'to' => $user->getEmail(),
-			'body' => $this->templating->render('RudakUserBundle:Email:change-password-error.html.twig', array(
+			'from'    => $this->config['from'],
+			'to'      => $user->getEmail(),
+			'body'    => $this->templating->render('RudakUserBundle:Email:change-password-error.html.twig', array(
 				'user' => $user,
 				'date' => new \Datetime('NOW'),
 			))
@@ -134,9 +142,9 @@ class UserHandler
 		$user->setSecurityHashExpireAt(new \DateTime('+1 hour'));
 		$this->sendMail(array(
 			'subject' => 'Demande de changement d\'adresse email',
-			'from' => 'security@monsite.fr',
-			'to' => $newEmail,
-			'body' => $this->templating->render('RudakUserBundle:Email:change-email-request.html.twig', array(
+			'from'    => $this->config['from'],
+			'to'      => $newEmail,
+			'body'    => $this->templating->render('RudakUserBundle:Email:change-email-request.html.twig', array(
 				'user' => $user,
 				'link' => $this->router->generate('rudakUser_email_change_confirmation', array(
 					'hash' => $user->getSecurityHash(),
@@ -153,9 +161,9 @@ class UserHandler
 		$newEmail = $user->getEmailTmp();
 		$this->sendMail(array(
 			'subject' => 'Changement d\'adresse email effectuée',
-			'from' => 'security@monsite.fr',
-			'to' => $newEmail,
-			'body' => $this->templating->render('RudakUserBundle:Email:change-email.html.twig', array(
+			'from'    => $this->config['from'],
+			'to'      => $newEmail,
+			'body'    => $this->templating->render('RudakUserBundle:Email:change-email.html.twig', array(
 				'user' => $user,
 				'date' => new \Datetime('NOW'),
 			)),

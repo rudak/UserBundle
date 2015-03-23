@@ -23,6 +23,6 @@ class RudakUserExtension extends Extension
 
 		$loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 		$loader->load('services.yml');
-		$container->setParameter('autologin_before_reinit', $config['autologin_before_reinit']);
+		$container->setParameter('rudak.user.config', $config);
 	}
 }
