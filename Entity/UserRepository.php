@@ -102,4 +102,14 @@ class UserRepository extends EntityRepository implements UserProviderInterface
 			->getQuery();
 		return $qb->getOneOrNullResult();
 	}
+
+
+	public function getExpiredHashes()
+	{
+		$qb = $this
+			->createQueryBuilder('u')
+			->where('u.SecurityHashExpireAt < :now')->setParameter('now', new \Datetime())
+			->getQuery();
+		return $qb->execute();
+	}
 }
