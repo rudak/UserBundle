@@ -102,7 +102,8 @@ class PasswordController extends Controller
 				'user' => $user,
 				'link' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
 					'hash' => $user->getSecurityHash()
-				), true)
+				), true),
+				'date' => new \Datetime('NOW'),
 			)));
 		$this->get('mailer')->send($message);
 	}

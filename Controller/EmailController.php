@@ -33,6 +33,7 @@ class EmailController extends Controller
 			$this
 				->get('event_dispatcher')
 				->dispatch(UserEvents::USER_EMAIL_CHANGE_REQUEST, $RecordEvent);
+			return $this->redirectToRoute('homepage');
 		}
 		return $this->render('RudakUserBundle:Default:change-email.html.twig', array(
 			'form' => $form->createView()
@@ -73,7 +74,7 @@ class EmailController extends Controller
 					))
 					->add('submit', 'submit', array(
 						'label' => 'Modifier',
-						'attr' => array(
+						'attr'  => array(
 							'class' => 'btn btn-success'
 						)
 					))

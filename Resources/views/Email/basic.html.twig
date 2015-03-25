@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <!-- If you delete this meta tag, Half Life 3 will never be released. -->
+    <meta name="viewport" content="width=device-width"/>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>ZURBemails</title>
+
+    <link rel="stylesheet" type="text/css"
+          href="{{ app.request.getSchemeAndHttpHost() ~ asset('public/css/email.css') }}"/>
+
+</head>
+
+<body bgcolor="#FFFFFF">
+
+
+<!-- BODY -->
+<table class="body-wrap">
+    <tr>
+        <td></td>
+        <td class="container" bgcolor="#FFFFFF">
+
+            <div class="content">
+                <table>
+                    <tr>
+                        <td>
+                            <h3>Bonjour {{ user.username }}</h3>
+
+                            {% block emailContent %}
+                            {% endblock %}
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- /content -->
+
+        </td>
+        <td></td>
+    </tr>
+</table>
+<!-- /BODY -->
+
+<!-- FOOTER -->
+<table class="footer-wrap">
+    <tr>
+        <td></td>
+        <td class="container">
+
+            <!-- content -->
+            <div class="content">
+                <table>
+                    <tr>
+                        <td align="center">
+                            <p class="ipMessage">
+                                Cette action a été effectuée à {{ date|date('H:i:s \\l\\e d/m/Y') }} depuis l'IP {{ app.request.server.get("SERVER_ADDR") }}.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- /content -->
+
+        </td>
+        <td></td>
+    </tr>
+</table>
+<!-- /FOOTER -->
+
+</body>
+</html>
