@@ -17,7 +17,7 @@ class SecurityCheckCommand extends ContainerAwareCommand
 	{
 		$this
 			->setName('rudakuser:securitycheck')
-			->setDescription('Verifier les hash de securité non validés.')
+			->setDescription('Check for expired security hashes.')
 			->addOption(
 				'--delete',
 				null,

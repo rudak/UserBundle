@@ -87,6 +87,11 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 		return $this->username;
 	}
 
+	public function isAdmin()
+	{
+		return $this->hasRole(static::ROLE_ADMIN) OR $this->isSuperAdmin();
+	}
+
 	public function isSuperAdmin()
 	{
 		return $this->hasRole(static::ROLE_SUPER_ADMIN);
@@ -168,7 +173,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 		return serialize([
 			$this->id,
 			$this->username,
-			$this->password,
+			$this->password
 		]);
 	}
 
@@ -180,7 +185,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 		list (
 			$this->id,
 			$this->username,
-			$this->password,
+			$this->password
 			)
 			= unserialize($serialized);
 	}
@@ -339,6 +344,10 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
 	public function isEqualTo(UserInterface $user)
 	{
+		if ($this->roles !== $user->getRoles()) {
+			return false;
+		}
+
 		if (!$user instanceof User) {
 			return false;
 		}

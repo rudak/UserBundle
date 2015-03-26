@@ -30,18 +30,21 @@ class AccessDeniedListener
 
 	public function onAccessDeniedException(GetResponseForExceptionEvent $event)
 	{
+
 		if ($event->getException()->getMessage() == 'Access Denied') {
 			$this->_session->getFlashBag()->add(
 				'notice',
 				'Votre type de compte ne vous permet pas d\'accéder à cette page.'
 			);
+			/*
 			if ($this->_request->headers->get('referer')) {
 				$route = $this->_request->headers->get('referer');
 			} else {
 				$route = $this->_router->generate('homepage');
 			}
+			*/
 
-			$event->setResponse(new RedirectResponse($route));
+			$event->setResponse(new RedirectResponse($this->_router->generate('homepage')));
 		}
 	}
 }

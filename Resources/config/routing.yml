@@ -1,10 +1,9 @@
 rudak_user_admin_user:
     resource: "@RudakUserBundle/Resources/config/routing/user.yml"
     prefix:   /admin/user
-
-rudakUser_profile:
-    pattern: /mon-profil
-    defaults: { _controller: RudakUserBundle:Default:profile }
+rudak_user_logged:
+    resource: "@RudakUserBundle/Resources/config/routing/logged.yml"
+    prefix:   /user
 
 index:
     pattern:     /index
@@ -41,20 +40,6 @@ rudakUser_reinit_mail_answer:
     defaults: { _controller: RudakUserBundle:Password:emailAnswer }
     requirements:
         hash: "[a-z\d]+"
-
-rudakUser_password_lost_reinit:
-    pattern: /enregistrer-nouveau-mot-de-passe
-    defaults: { _controller: RudakUserBundle:Password:emailAnswer }
-    requirements:
-        _method: POST
-
-rudakUser_pwd_modification:
-    pattern: /modifier-mot-de-passe
-    defaults: { _controller: RudakUserBundle:Password:changePassword }
-
-rudakUser_email_modification:
-    pattern: /modifier-mon-email
-    defaults: { _controller: RudakUserBundle:Email:changeEmail }
 
 rudakUser_email_change_confirmation:
     pattern: /confirmer-nouvelle-adresse-email/{hash}
