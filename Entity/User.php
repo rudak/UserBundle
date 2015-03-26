@@ -16,6 +16,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 {
 	const ROLE_DEFAULT     = 'ROLE_USER';
+	const ROLE_MODERATOR   = 'ROLE_MODERATOR';
+	const ROLE_ADMIN       = 'ROLE_ADMIN';
 	const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
 	/**
