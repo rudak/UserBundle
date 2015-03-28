@@ -1,0 +1,30 @@
+admin_user:
+    path:     /
+    defaults: { _controller: "RudakUserBundle:User:index" }
+
+admin_user_show:
+    path:     /{id}/show
+    defaults: { _controller: "RudakUserBundle:User:show" }
+
+admin_user_new:
+    path:     /new
+    defaults: { _controller: "RudakUserBundle:User:new" }
+
+admin_user_create:
+    path:     /create
+    defaults: { _controller: "RudakUserBundle:User:create" }
+    methods:  POST
+
+admin_user_edit:
+    path:     /{id}/edit
+    defaults: { _controller: "RudakUserBundle:User:edit" }
+
+admin_user_update:
+    path:     /{id}/update
+    defaults: { _controller: "RudakUserBundle:User:update" }
+    methods:  [POST, PUT]
+
+admin_user_delete:
+    path:     /{id}/delete
+    defaults: { _controller: "RudakUserBundle:User:delete" }
+    methods:  [POST, DELETE]

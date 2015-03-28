@@ -1,0 +1,18 @@
+{% extends '::base.html.twig' %}
+
+{% block body -%}
+    <div class="row">
+        <div class="col-xs-12">
+            <h1>User creation</h1>
+
+            {{ form(form) }}
+            <hr/>
+            <p>
+                <a href="{{ path('admin_user') }}" class="btn btn-default">
+                    Retour a la liste
+                </a>
+            </p>
+        </div>
+    </div>
+
+{% endblock %}

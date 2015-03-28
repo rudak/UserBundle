@@ -1,0 +1,53 @@
+{% extends '::base.html.twig' %}
+
+{% block body -%}
+
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Pseudo</th>
+                    <th>Email</th>
+                    <th>Activé</th>
+                    <th>Dernier Login</th>
+                    <th>Membre depuis</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for entity in entities %}
+                    <tr {% if entity.blocked %}class="danger"{% endif %}>
+                        <td>{{ entity.username }}</td>
+                        <td>{{ entity.email }}</td>
+                        <td>
+                            {% if entity.isActive %}
+                                Oui
+                            {% else %}
+                                Non
+                            {% endif %}
+                        </td>
+                        <td>{% if entity.lastLogin %}{{ entity.lastLogin|date('Y-m-d H:i:s') }}{% endif %}</td>
+                        <td>{% if entity.emailValidation %}{{ entity.emailValidation|date('Y-m-d H:i:s') }}{% endif %}</td>
+                        <td>
+                            <a href="{{ path('admin_user_show', { 'id': entity.id }) }}" class="btn btn-default btn-xs">
+                                Voir
+                            </a>
+                            <a href="{{ path('admin_user_edit', { 'id': entity.id }) }}" class="btn btn-default btn-xs">
+                                Modifier
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <p>
+                <a href="{{ path('admin_user_new') }}" class="btn btn-default btn-success">
+                    Ajouter un utilisateur manuellement
+                </a>
+            </p>
+        </div>
+    </div>
+
+
+{% endblock %}

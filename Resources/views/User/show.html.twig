@@ -1,0 +1,77 @@
+{% extends '::base.html.twig' %}
+
+{% block body -%}
+    <div class="row">
+        <div class="col-xs-12">
+            <h1>User</h1>
+
+            <table class="table">
+                <tbody>
+                <tr>
+                    <th>Roles</th>
+                    <td>
+                        <ul>
+                            {% for role in entity.roles %}
+                                <li>{{ role }}</li>
+                            {% endfor %}
+                        </ul>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th>Pseudo</th>
+                    <td>{{ entity.username }}</td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>{{ entity.email }}</td>
+                </tr>
+                <tr>
+                    <th>Actif</th>
+                    <td>
+                        {% if entity.isActive %}
+                            Oui
+                        {% else %}
+                            Non
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Blocage</th>
+                    <td>
+                        {% if entity.blocked %}
+                            Oui
+                        {% else %}
+                            Non
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Derniere authentification</th>
+                    <td>
+                        {% if entity.lastLogin %}
+                            {{ entity.lastLogin|date('d/m/Y') }}
+                        {% else %}
+                            Jamais
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Membre depuis le</th>
+                    <td>{{ entity.emailValidation|date('Y-m-d H:i:s') }}</td>
+                </tr>
+                </tbody>
+            </table>
+            <p>
+                <a href="{{ path('admin_user') }}" class="btn btn-default">
+                    Retour a la liste
+                </a>
+                <a href="{{ path('admin_user_edit', { 'id': entity.id }) }}" class="btn btn-success">
+                    Modifier
+                </a>
+            </p>
+            {{ form(delete_form) }}
+        </div>
+    </div>
+
+{% endblock %}

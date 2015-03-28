@@ -1,0 +1,28 @@
+{% if not app.user %}
+    <p>
+        {% render(controller('RudakUserBundle:Form:getFormLogin')) %}
+    </p>
+    <p class="userArealinks">
+        <a href="{{ path('rudakUser_lost_pwd') }}">
+            Mot de passe perdu
+        </a>
+        <br/>
+        <a href="{{ path('record_new') }}">
+            Enregistrement nouvel utilisateur
+        </a>
+    </p>
+{% else %}
+    <p>
+        Loggé en tant que {{ app.user.username }}.
+    </p>
+    <p>
+        <a href="{{ path('rudakUser_profile') }}">
+            Mon profil
+        </a>
+    </p>
+    <p>
+        <a href="{{ path('logout') }}">
+            Deconnexion
+        </a>
+    </p>
+{% endif %}
