@@ -2,21 +2,7 @@
 
 {% block body %}
     {% if error %}
-        <div class="error">{{ error.message|trans({},'messages') }}</div>
+        <div class="rudakuser_error">{{ error.message|trans({},'messages') }}</div>
     {% endif %}
-
-    <form action="{{ path('login_check') }}" method="post">
-        <label for="username">{{ 'security.login.username'|trans }}</label>
-        <input type="text" id="username" name="_username" value="{{ last_username }}"/>
-
-        <label for="password">{{ 'security.login.password'|trans }}</label>
-        <input type="password" id="password" name="_password"/>
-
-        <button type="submit">{{ 'security.login.submit'|trans }}</button>
-    </form>
-    <p>
-        <a href="{{ path('rudakUser_lost_pwd') }}">
-            Mot de passe perdu
-        </a>
-    </p>
+    {% include "RudakUserBundle:Include:user-area.html.twig" %}
 {% endblock %}

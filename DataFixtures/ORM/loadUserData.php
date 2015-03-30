@@ -62,25 +62,25 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface
 				'username' => 'joe',
 				'password' => '0000',
 				'email'    => 'joe@website.com',
-				'roles'    => ['ROLE_USER']
+				'roles'    => [User::ROLE_DEFAULT]
 			],
 			[
 				'username' => 'gustave',
 				'password' => '0000',
 				'email'    => 'michel@website.com',
-				'roles'    => ['ROLE_USER', 'ROLE_MODERATOR']
+				'roles'    => [user::ROLE_DEFAULT, user::ROLE_MODERATOR, user::ROLE_ADMIN]
 			],
 			[
 				'username' => 'admin',
 				'password' => 'admin',
 				'email'    => 'admin@admin.com',
-				'roles'    => ['ROLE_USER', 'ROLE_ADMIN']
+				'roles'    => [user::ROLE_ADMIN]
 			],
 			[
 				'username' => 'charlotte184',
 				'password' => '0000',
 				'email'    => 'charlotte@wanadoo.fr',
-				'roles'    => ['ROLE_USER', 'ROLE_ADMIN']
+				'roles'    => [user::ROLE_ADMIN]
 			]
 		];
 	}

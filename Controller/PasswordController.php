@@ -200,18 +200,4 @@ class PasswordController extends Controller
 		$event = new InteractiveLoginEvent($request, $token);
 		$this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
 	}
-
-	/**
-	 * Renvoie un mot de passe a partir d'un user et d'un plain password
-	 * @param User $user
-	 * @param $plainPassword
-	 * @return mixed
-	 */
-	private function createPassword(User $user, $plainPassword)
-	{
-		$encoder = $this->container
-			->get('security.encoder_factory')
-			->getEncoder($user);
-		return $encoder->encodePassword($plainPassword, $user->getSalt());
-	}
 }
