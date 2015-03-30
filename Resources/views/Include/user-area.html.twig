@@ -1,18 +1,8 @@
-{% if facebook is defined and facebook == true %}
-    facebook ok !
-{% else %}
-    facebook non.
-{% endif %}
-
 {% if not app.user %}
     <p>
         {% render(controller('RudakUserBundle:Form:getFormLogin')) %}
     </p>
     <p class="userArealinks">
-        <a href="{{ path('rudakUser_fb_login') }}">
-            Connexion Facebook
-        </a>
-        <br/>
         <a href="{{ path('rudakUser_lost_pwd') }}">
             Mot de passe perdu
         </a>
