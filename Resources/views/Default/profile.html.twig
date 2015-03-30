@@ -19,12 +19,12 @@
         </li>
     </ul>
     <p>
-        <a href="{{ path('rudakUser_pwd_modification') }}">
-            Modifier mon mot de passe
+        <a href="{{ path('rudakUser_pwd_modification') }}" title="{{ 'btn_txt.update_password'|trans }}">
+            {{ 'btn_txt.update_password'|trans }}
         </a>
         <br/>
-        <a href="{{ path('rudakUser_email_modification') }}">
-            Modifier mon adresse mail
+        <a href="{{ path('rudakUser_email_modification') }}" title="{{ 'btn_txt.update_email'|trans }}">
+            {{ 'btn_txt.update_email'|trans }}
         </a>
     </p>
 {% endblock %}

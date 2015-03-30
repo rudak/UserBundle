@@ -10,3 +10,13 @@ password:
         label: Your username or email ?
         btn: Retrieve
 "Bad credentials.": Incorrect username and/or password
+
+btn_txt:
+    logged_in_as: Logged in as %name%
+    lost.password: Lost password
+    create.account: Register
+    logout: Logout
+    profile: My profile
+    update_password: Update password
+    update_email: Update email
+

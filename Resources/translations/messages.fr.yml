@@ -10,3 +10,12 @@ password:
         label: Votre pseudo ou adresse email ?
         btn: Retrouver
 "Bad credentials.": Pseudo ou mot de passe incorrect.
+
+btn_txt:
+    logged_in_as: Connecté en tant que %name%
+    lost.password: Mot de passe perdu
+    create.account: Enregistrement nouvel utilisateur
+    logout: Deconnexion
+    profile: Mon profil
+    update_password: Modifier mot de passe
+    update_email: Modifier adresse email

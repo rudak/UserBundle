@@ -2,12 +2,13 @@
     {% render(controller('RudakUserBundle:Form:getFormLogin')) %}
     <div class="userArealinks">
         <p>
-            <a href="{{ path('rudakUser_lost_pwd') }}" title="Mot de passe perdu">
-                Mot de passe perdu
+            <a href="{{ path('rudakUser_lost_pwd') }}" title="{{ 'btn_txt.lost.password'|trans }}">
+                {{ 'btn_txt.lost.password'|trans }}
             </a>
-            <br/>
-            <a href="{{ path('record_new') }}" title="Enregistrement nouvel utilisateur">
-                Enregistrement nouvel utilisateur
+        </p>
+        <p>
+            <a href="{{ path('record_new') }}" title="{{ 'btn_txt.create.account'|trans }}">
+                {{ 'btn_txt.create.account'|trans }}
             </a>
         </p>
     </div>
@@ -15,18 +16,18 @@
 {% else %}
     <div class="userArealinks">
         <p>
-            Loggé en tant que {{ app.user.username }}.
+            {{ 'btn_txt.logged_in_as'|trans({'%name%': app.user.username}) }}
         </p>
 
         <p>
-            <a href="{{ path('rudakUser_profile') }}" title="Mon profil">
-                Mon profil
+            <a href="{{ path('rudakUser_profile') }}" title="{{ 'btn_txt.profile'|trans }}">
+                {{ 'btn_txt.profile'|trans }}
             </a>
         </p>
 
         <p>
-            <a href="{{ path('logout') }}" title="Deconnexion">
-                Deconnexion
+            <a href="{{ path('logout') }}" title="{{ 'btn_txt.logout'|trans }}">
+                {{ 'btn_txt.logout'|trans }}
             </a>
         </p>
     </div>
