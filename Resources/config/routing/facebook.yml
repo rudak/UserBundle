@@ -1,0 +1,7 @@
+rudakUser_fb_login:
+    pattern:     /login
+    defaults: { _controller: RudakUserBundle:Facebook:login }
+
+rudakUser_fb_authentication_ok:
+    pattern:     /authentication-ok
+    defaults: { _controller: RudakUserBundle:Facebook:authenticationOk }

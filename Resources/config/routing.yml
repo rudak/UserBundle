@@ -4,6 +4,9 @@ rudak_user_admin_user:
 rudak_user_logged:
     resource: "@RudakUserBundle/Resources/config/routing/logged.yml"
     prefix:   /user
+rudak_user_facebook:
+    resource: "@RudakUserBundle/Resources/config/routing/facebook.yml"
+    prefix:   /facebook
 
 index:
     pattern:     /index
