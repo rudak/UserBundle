@@ -17,7 +17,7 @@
                 </thead>
                 <tbody>
                 {% for entity in entities %}
-                    <tr {% if entity.blocked %}class="danger"{% endif %}>
+                    <tr {% if entity.isblocked %}class="danger"{% endif %}>
                         <td>{{ entity.username }}</td>
                         <td>{{ entity.email }}</td>
                         <td>

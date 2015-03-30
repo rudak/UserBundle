@@ -58,7 +58,7 @@ class CreateCommand extends ContainerAwareCommand
 			$user->addRole('ROLE_SUPER_ADMIN');
 		}
 		if ($input->getOption('blocked')) {
-			$user->setBlocked(true);
+			$user->setIsBlocked(true);
 		}
 
 		$this->getEm()->persist($user);

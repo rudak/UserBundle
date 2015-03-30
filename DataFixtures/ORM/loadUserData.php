@@ -10,6 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class LoadUserData implements FixtureInterface, ContainerAwareInterface
 {
+
 	/**
 	 * @var ContainerInterface
 	 */
@@ -39,6 +40,7 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface
 			$user[$key]->setRoles($userInfos['roles']);
 			$user[$key]->setEmailValidation(new \Datetime('NOW'));
 			$user[$key]->setIsActive(true);
+			$user[$key]->setIsBlocked(false);
 
 			$encoder = $this->container
 				->get('security.encoder_factory')
@@ -59,26 +61,26 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface
 			[
 				'username' => 'joe',
 				'password' => '0000',
-				'email' => 'joe@website.com',
-				'roles' => ['ROLE_USER']
+				'email'    => 'joe@website.com',
+				'roles'    => ['ROLE_USER']
 			],
 			[
 				'username' => 'gustave',
 				'password' => '0000',
-				'email' => 'michel@website.com',
-				'roles' => ['ROLE_USER', 'ROLE_MODO']
+				'email'    => 'michel@website.com',
+				'roles'    => ['ROLE_USER', 'ROLE_MODERATOR']
 			],
 			[
 				'username' => 'admin',
 				'password' => 'admin',
-				'email' => 'admin@admin.com',
-				'roles' => ['ROLE_USER', 'ROLE_ADMIN']
+				'email'    => 'admin@admin.com',
+				'roles'    => ['ROLE_USER', 'ROLE_ADMIN']
 			],
 			[
 				'username' => 'charlotte184',
 				'password' => '0000',
-				'email' => 'charlotte@wanadoo.fr',
-				'roles' => ['ROLE_USER', 'ROLE_ADMIN']
+				'email'    => 'charlotte@wanadoo.fr',
+				'roles'    => ['ROLE_USER', 'ROLE_ADMIN']
 			]
 		];
 	}

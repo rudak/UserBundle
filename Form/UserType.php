@@ -36,7 +36,7 @@ class UserType extends AbstractType
 				'label' => 'Activé',
 				'required' => false
 			))
-			->add('blocked', 'checkbox', array(
+			->add('isBlocked', 'checkbox', array(
 				'label' => 'Bloqué',
 				'required' => false
 			));
