@@ -1,8 +1,8 @@
 {% extends 'RudakUserBundle:Email:basic.html.twig' %}
 
 {% block emailContent %}
-<p>
-    Nous avons bien pris en compte votre changement d'adresse à {{ date|date('H:i:s \\l\\e d/m/Y') }} et
-    l'ancienne ({{ user.email }}) a été supprimée de nos bases de données.
-</p>
-{%  endblock %}
+    <p class="callout">
+        Nous avons bien pris en compte votre changement d'adresse à {{ date|date('H:i:s \\l\\e d/m/Y') }} et
+        l'ancienne ({{ user.email }}) a été supprimée de nos bases de données.
+    </p>
+{% endblock %}
