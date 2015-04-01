@@ -3,6 +3,7 @@
 namespace Rudak\UserBundle\Listener;
 
 
+use Rudak\UserBundle\Event\BaseEvent;
 use Rudak\UserBundle\Event\ChangePasswordEvent;
 use Rudak\UserBundle\Handler\UserHandler;
 
@@ -29,6 +30,16 @@ class ChangePasswordListener
 	public function reinitSuccess(ChangePasswordEvent $event)
 	{
 		$this->userHandler->reinitPasswordSuccess($event->getUser());
+	}
+
+	public function lostRequest(BaseEvent $event)
+	{
+		$options = $event->getOptions();
+		if (true === $options['reinit_autogen_pwd']) {
+
+		} else {
+
+		}
 	}
 
 } 

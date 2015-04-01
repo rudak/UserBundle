@@ -35,6 +35,13 @@ services:
         tags:
             - { name: kernel.event_listener, event: rudak_user.email_validation, method: validationSuccess }
     # Reinitialisation du mot de passe réussi
+    rudak.user.listener.lost_password_request:
+        class: Rudak\UserBundle\Listener\ChangePasswordListener
+        arguments: [@rudak_user.handler.user]
+        tags:
+            - { name: kernel.event_listener, event: rudak_user.password_lost.request, method: lostRequest }
+
+    # Reinitialisation du mot de passe réussi
     rudak.user.listener.reinit_password_success:
         class: Rudak\UserBundle\Listener\ChangePasswordListener
         arguments: [@rudak_user.handler.user]

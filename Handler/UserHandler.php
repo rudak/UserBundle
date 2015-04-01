@@ -17,12 +17,19 @@ use Symfony\Component\Templating\EngineInterface;
 
 class UserHandler
 {
+
 	private   $mailer;
+
 	private   $templating;
+
 	private   $em;
+
 	private   $encoder;
+
 	private   $router;
+
 	protected $container;
+
 	private   $config;
 
 	function __construct(\Swift_Mailer $mailer,
@@ -42,6 +49,7 @@ class UserHandler
 
 	/**
 	 * Méthode appelée quand on change de mot de passe
+	 *
 	 * @param User $user
 	 */
 	public function changePasswordSuccessfull(User $user)
@@ -64,19 +72,22 @@ class UserHandler
 
 	/**
 	 * Retourne le mot de passe encodé
+	 *
 	 * @param $user
 	 * @return string
 	 */
 	private function getEncodedPassword(User $user)
 	{
 		$encoder = $this->encoder->getEncoder($user);
+
 		return $encoder->encodePassword($user->getPlainPassword(), $user->getSalt());
 	}
 
 
 	/**
 	 * Envoi le mail pour prevenir du changement de mot de passe
-	 * @param $user
+	 *
+	 * @param       $user
 	 * @param array $options
 	 */
 	private function sendMail(array $options)
@@ -93,6 +104,7 @@ class UserHandler
 
 	/**
 	 * Intervient lors du success de la réinitialisation du mot de passe
+	 *
 	 * @param User $user
 	 */
 	public function reinitPasswordSuccess(User $user)
@@ -175,5 +187,15 @@ class UserHandler
 
 		$this->em->persist($user);
 		$this->em->flush();
+	}
+
+	public function reinitPasswordRequest()
+	{
+
+	}
+
+	public function autoGenPasswordRequest()
+	{
+
 	}
 }

@@ -14,6 +14,7 @@ use Symfony\Component\HttpKernel\Event\KernelEvent;
 
 class RecordEvent extends KernelEvent
 {
+
 	protected $user;
 
 	public function __construct(User $user)
