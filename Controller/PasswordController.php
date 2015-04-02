@@ -84,15 +84,6 @@ class PasswordController extends Controller
 			$this
 				->get('event_dispatcher')
 				->dispatch(UserEvents::USER_PASSWORD_LOST_REQUEST, $baseEvent);
-			if (true === $rudakConfig['reinit_autogen_pwd']) {
-				$this->addFlash('notice', 'Un email contenant un mot de passe provisoire vous a été envoyé.');
-			} else {
-				$this->addFlash('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
-			}
-			// suite a passer dans le user handler
-			$user->setSecurityHash(sha1(md5(uniqid(null, true))));
-			$user->setSecurityHashExpireAt(new \Datetime('+1 hour'));
-			$this->sendMail($user);
 			$em->persist($user);
 			$em->flush();
 		} else {
@@ -100,29 +91,6 @@ class PasswordController extends Controller
 		}
 
 		return $this->redirectToRoute('homepage');
-	}
-
-
-	/**
-	 * Envoie un mail pour la recup du password
-	 *
-	 * @param User $user
-	 */
-	private function sendMail(User $user)
-	{
-		$message = \Swift_Message::newInstance()
-								 ->setContentType("text/html")
-								 ->setSubject('Mot de passe perdu')
-								 ->setFrom('robot@mon-site.fr')
-								 ->setTo($user->getEmail())
-								 ->setBody($this->renderView('RudakUserBundle:Email:link-password-init.html.twig', array(
-									 'user' => $user,
-									 'link' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
-										 'hash' => $user->getSecurityHash()
-									 ), true),
-									 'date' => new \Datetime('NOW'),
-								 )));
-		$this->get('mailer')->send($message);
 	}
 
 	/**
@@ -178,6 +146,40 @@ class PasswordController extends Controller
 			'form' => $form->createView(),
 			'user' => $user
 		));
+	}
+
+	public function autoGenAnswerAction(Request $request, $hash)
+	{
+		// si deja connecté on oublie ce lien.
+		if ($this->getUser() instanceof User) {
+			$user = $this->getUser();
+			$user->setSecurityHash(null);
+			$user->setSecurityHashExpireAt(null);
+
+			$em = $this->getDoctrine()->getManager();
+			$em->persist($user);
+			$em->flush();
+
+			$this->addFlash('notice', 'Vous êtes déja connecté, ce lien va être désactivé.');
+
+			return $this->redirectToRoute('homepage');
+		}
+		$em   = $this->getDoctrine()->getManager();
+		$user = $em->getRepository('RudakUserBundle:User')->getUserByHash($hash);
+
+		if (!$user) {
+			$this->addFlash('notice', 'Impossible de trouver une correspondance avec cette clé de réinitialisation.');
+
+			return $this->redirectToRoute('homepage');
+		}
+		$this->autoLogin($user, $request);
+		$this->addFlash('notice', 'Veuillez changer votre mot de passe, désactivation du lien de connexion.');
+		$user->setSecurityHash(null);
+		$user->setSecurityHashExpireAt(null);
+		$em->persist($user);
+		$em->flush();
+
+		return $this->redirectToRoute('rudakUser_pwd_modification');
 	}
 
 	/**

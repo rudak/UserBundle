@@ -36,9 +36,9 @@ class ChangePasswordListener
 	{
 		$options = $event->getOptions();
 		if (true === $options['reinit_autogen_pwd']) {
-
+			$this->userHandler->autoGenPasswordRequest($event->getUser());
 		} else {
-
+			$this->userHandler->reinitPasswordRequest($event->getUser());
 		}
 	}
 

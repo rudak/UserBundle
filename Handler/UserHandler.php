@@ -11,6 +11,7 @@ namespace Rudak\UserBundle\Handler;
 
 use Doctrine\ORM\EntityManager;
 use Rudak\UserBundle\Entity\User;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Templating\EngineInterface;
@@ -32,12 +33,9 @@ class UserHandler
 
 	private   $config;
 
-	function __construct(\Swift_Mailer $mailer,
-						 EngineInterface $templating,
-						 EntityManager $entityManager,
-						 EncoderFactoryInterface $encoder,
-						 Router $router,
-						 $config)
+	function __construct(\Swift_Mailer $mailer, EngineInterface $templating,
+						 EntityManager $entityManager, EncoderFactoryInterface $encoder,
+						 Router $router, $config)
 	{
 		$this->mailer     = $mailer;
 		$this->templating = $templating;
@@ -87,7 +85,6 @@ class UserHandler
 	/**
 	 * Envoi le mail pour prevenir du changement de mot de passe
 	 *
-	 * @param       $user
 	 * @param array $options
 	 */
 	private function sendMail(array $options)
@@ -109,8 +106,7 @@ class UserHandler
 	 */
 	public function reinitPasswordSuccess(User $user)
 	{
-		$user->setSecurityHash(null);
-		$user->setSecurityHashExpireAt(null);
+		$this->eraseSecurityHash($user);
 		$user->setEmailValidation(new \Datetime('NOW'));
 		$user->setIsActive(true);
 		$user->setPassword($this->getEncodedPassword($user));
@@ -142,7 +138,7 @@ class UserHandler
 
 	public function emailValidationSuccess(User $user)
 	{
-		$user->setSecurityHash(null);
+		$this->eraseSecurityHash($user);
 		$user->setIsActive(true);
 		$user->setEmailValidation(new \Datetime('NOW'));
 	}
@@ -150,8 +146,7 @@ class UserHandler
 	public function changeEmailRequest(User $user)
 	{
 		$newEmail = $user->getEmailTmp();
-		$user->setSecurityHash(md5(uniqid()));
-		$user->setSecurityHashExpireAt(new \DateTime('+1 hour'));
+		$this->setNewSecurityHash($user);
 		$this->sendMail(array(
 			'subject' => 'Demande de changement d\'adresse email',
 			'from'    => $this->config['from'],
@@ -182,20 +177,64 @@ class UserHandler
 		));
 		$user->setEmailTmp(null);
 		$user->setEmail($newEmail);
-		$user->setSecurityHash(null);
-		$user->setSecurityHashExpireAt(null);
+		$this->eraseSecurityHash($user);
 
 		$this->em->persist($user);
 		$this->em->flush();
 	}
 
-	public function reinitPasswordRequest()
+	public function reinitPasswordRequest(User $user)
 	{
-
+		$this->setNewSecurityHash($user);
+		$this->sendMail(array(
+			'subject' => 'Mot de passe perdu',
+			'from'    => $this->config['from'],
+			'to'      => $user->getEmail(),
+			'body'    => $this->templating->render('RudakUserBundle:Email:link-password-init.html.twig', array(
+				'user' => $user,
+				'link' => $this->router->generate('rudakUser_reinit_mail_answer', array(
+					'hash' => $user->getSecurityHash()
+				), true),
+				'date' => new \Datetime('NOW'),
+			)),
+		));
+		$session = new Session();
+		$session->getFlashBag()->add('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
 	}
 
-	public function autoGenPasswordRequest()
+	public function autoGenPasswordRequest(User $user)
 	{
+		$plainPassword = strtoupper(substr(str_shuffle('azertyuiopqsdfghjklmwxcvbn0123456789'), 0, 6));
+		$user->setPlainPassword($plainPassword);
+		$newPassword = $this->getEncodedPassword($user);
+		$user->setPassword($newPassword);
+		$this->setNewSecurityHash($user);
+		$this->sendMail(array(
+			'subject' => 'Nouveau mot de passe provisoire',
+			'from'    => $this->config['from'],
+			'to'      => $user->getEmail(),
+			'body'    => $this->templating->render('RudakUserBundle:Email:autogen-password.html.twig', array(
+				'user' => $user,
+				'link' => $this->router->generate('rudakUser_autogen_pwd_answer', array(
+					'hash' => $user->getSecurityHash()
+				), true),
+				'date' => new \Datetime('NOW'),
+			)),
+		));
+		$user->eraseCredentials();
+		$session = new Session();
+		$session->getFlashBag()->add('notice', 'Un email contenant un mot de passe provisoire vous a été envoyé.');
+	}
 
+	private function setNewSecurityHash(User $user)
+	{
+		$user->setSecurityHash(sha1(md5(uniqid(null, true))));
+		$user->setSecurityHashExpireAt(new \Datetime('+1 hour'));
+	}
+
+	private function eraseSecurityHash(User $user)
+	{
+		$user->setSecurityHash(null);
+		$user->setSecurityHashExpireAt(null);
 	}
 }

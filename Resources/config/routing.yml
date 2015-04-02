@@ -35,11 +35,18 @@ rudakUser_lost_pwd_find:
     requirements:
         _method: POST
 
+rudakUser_autogen_pwd_answer:
+    pattern: /autogen-mot-de-passe/{hash}
+    defaults: { _controller: RudakUserBundle:Password:autoGenAnswer }
+    requirements:
+        hash: "[a-z\d]+"
+
 rudakUser_reinit_mail_answer:
     pattern: /reinitialisation-mot-de-passe/{hash}
     defaults: { _controller: RudakUserBundle:Password:emailAnswer }
     requirements:
         hash: "[a-z\d]+"
+
 
 rudakUser_email_change_confirmation:
     pattern: /confirmer-nouvelle-adresse-email/{hash}
