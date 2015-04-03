@@ -21,14 +21,17 @@ class Configuration implements ConfigurationInterface
 		$rootNode    = $treeBuilder->root('rudak_user');
 		$rootNode->children()
 					 ->scalarNode('autologin_before_reinit')
-						 ->defaultValue(true)
+						->defaultTrue()
 					 ->end()
 					 ->scalarNode('from')
 						 ->isRequired()
 						 ->cannotBeEmpty()
 					 ->end()
+					 ->scalarNode('reinit_autogen_pwd')
+						->defaultFalse()
+						->isRequired()
+					 ->end()
 				 ->end();
-
 
 		return $treeBuilder;
 	}

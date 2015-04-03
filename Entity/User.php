@@ -15,6 +15,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 {
+
 	const ROLE_DEFAULT     = 'ROLE_USER';
 	const ROLE_MODERATOR   = 'ROLE_MODERATOR';
 	const ROLE_ADMIN       = 'ROLE_ADMIN';
@@ -26,10 +27,12 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	 * @ORM\GeneratedValue(strategy="AUTO")
 	 */
 	private $id;
+
 	/**
 	 * @ORM\Column(type="string", length=25, unique=true)
 	 */
 	private $username;
+
 	/**
 	 * @ORM\Column(type="string", length=255)
 	 */
@@ -49,26 +52,32 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	 * @ORM\Column(name="is_active", type="boolean", nullable=true)
 	 */
 	private $isActive;
+
 	/**
-	 * @ORM\Column(name="blocked", type="boolean", nullable=true)
+	 * @ORM\Column(name="is_blocked", type="boolean", nullable=true)
 	 */
-	private $blocked;
+	private $isBlocked;
+
 	/**
 	 * @ORM\Column(type="array")
 	 */
 	private $roles;
+
 	/**
 	 * @ORM\Column(name="lastLogin", type="datetime", nullable=true)
 	 */
 	private $lastLogin;
+
 	/**
 	 * @ORM\Column(name="email_validation", type="datetime", nullable=true)
 	 */
 	private $emailValidation;
+
 	/**
 	 * @ORM\Column(type="string", length=70, nullable=true)
 	 */
 	private $securityHash;
+
 	/**
 	 * @ORM\Column(name="SecurityHashExpireAt", type="datetime", nullable=true)
 	 */
@@ -79,6 +88,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	public function __construct()
 	{
 		$this->isActive = false;
+		$this->isBlocked  = false;
 		$this->roles[]  = static::ROLE_DEFAULT;
 	}
 
@@ -139,8 +149,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	{
 		if (true === $boolean) {
 			$this->addRole(static::ROLE_SUPER_ADMIN);
-		}
-		else {
+		} else {
 			$this->removeRole(static::ROLE_SUPER_ADMIN);
 		}
 
@@ -265,18 +274,19 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	/**
 	 * @return mixed
 	 */
-	public function getBlocked()
+	public function getIsBlocked()
 	{
-		return $this->blocked;
+		return $this->isBlocked;
 	}
 
 	/**
-	 * @param mixed $blocked
+	 * @param mixed $isBlocked
 	 */
-	public function setBlocked($blocked)
+	public function setIsBlocked($isBlocked)
 	{
-		$this->blocked = $blocked;
+		$this->isBlocked = $isBlocked;
 	}
+
 
 	/**
 	 * @return mixed
@@ -456,7 +466,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	 */
 	public function isAccountNonLocked()
 	{
-		return (true === $this->blocked) ? false : true;
+		return (true === $this->isBlocked) ? false : true;
 
 	}
 
@@ -487,7 +497,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 	 */
 	public function isEnabled()
 	{
-		return (true === $this->blocked) ? false : true;
+		return (true === $this->isBlocked) ? false : true;
 	}
 
 
