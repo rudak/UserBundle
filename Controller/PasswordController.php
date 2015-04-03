@@ -3,6 +3,7 @@
 namespace Rudak\UserBundle\Controller;
 
 use Rudak\UserBundle\Entity\User;
+use Rudak\UserBundle\Event\BaseEvent;
 use Rudak\UserBundle\Event\ChangePasswordEvent;
 use Rudak\UserBundle\Event\UserEvents;
 use Rudak\UserBundle\Form\ChangePasswordType;
@@ -17,6 +18,7 @@ use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class PasswordController extends Controller
 {
+
 	public function lostAction()
 	{
 		return $this->render('RudakUserBundle:Password:lost.html.twig');
@@ -26,6 +28,7 @@ class PasswordController extends Controller
 	{
 		if (!$this->getUser()) {
 			$this->addFlash('notice', 'Vous devez etre loggé pour modifier votre mot de passe.');
+
 			return $this->redirectToRoute('homepage');
 		}
 		$changePassword = new ChangePassword();
@@ -46,6 +49,7 @@ class PasswordController extends Controller
 					->get('event_dispatcher')
 					->dispatch(UserEvents::USER_PASSWORD_CHANGE_SUCCESS, $changePasswordEvent);
 				$this->addFlash('notice', 'Mot de passe changé avec succès.');
+
 				return $this->redirect($this->generateUrl('rudakUser_profile'));
 			} else {
 				// formulaire invalide
@@ -64,6 +68,7 @@ class PasswordController extends Controller
 
 	/**
 	 * Recherche un user selon l'info donnée (user ou email) et envoie un mail pour la recup
+	 *
 	 * @param Request $request
 	 * @return \Symfony\Component\HttpFoundation\RedirectResponse
 	 */
@@ -74,42 +79,23 @@ class PasswordController extends Controller
 		$user = $em->getRepository('RudakUserBundle:User')->checkIfUserExists($data);
 
 		if ($user && $user instanceof User) {
-			$user->setSecurityHash(sha1(md5(uniqid(null, true))));
-			$user->setSecurityHashExpireAt(new \Datetime('+1 hour'));
-			$this->sendMail($user);
-			$this->addFlash('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
+			$rudakConfig = $this->container->getParameter('rudak.user.config');
+			$baseEvent   = new BaseEvent($user, $rudakConfig);
+			$this
+				->get('event_dispatcher')
+				->dispatch(UserEvents::USER_PASSWORD_LOST_REQUEST, $baseEvent);
 			$em->persist($user);
 			$em->flush();
 		} else {
 			$this->addFlash('notice', 'Le nom d’utilisateur que vous avez entré ne correspond pas au nom enregistré sur nos serveurs pour votre compte.');
 		}
+
 		return $this->redirectToRoute('homepage');
-	}
-
-
-	/**
-	 * Envoie un mail pour la recup du password
-	 * @param User $user
-	 */
-	private function sendMail(User $user)
-	{
-		$message = \Swift_Message::newInstance()
-			->setContentType("text/html")
-			->setSubject('Mot de passe perdu')
-			->setFrom('robot@mon-site.fr')
-			->setTo($user->getEmail())
-			->setBody($this->renderView('RudakUserBundle:Email:link-password-init.html.twig', array(
-				'user' => $user,
-				'link' => $this->generateUrl('rudakUser_reinit_mail_answer', array(
-					'hash' => $user->getSecurityHash()
-				), true),
-				'date' => new \Datetime('NOW'),
-			)));
-		$this->get('mailer')->send($message);
 	}
 
 	/**
 	 * Traite la réponse du mail, et renvoie vers le formulaire de réinititlisation de mot de passe
+	 *
 	 * @param $hash
 	 * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
 	 */
@@ -120,12 +106,14 @@ class PasswordController extends Controller
 
 		if (!$user) {
 			$this->addFlash('notice', 'Impossible de trouver une correspondance avec cette clé de réinitialisation.');
+
 			return $this->redirectToRoute('homepage');
 		}
 
 		if (new \Datetime('NOW') > $user->getSecurityHashExpireAt()) {
 			$this->launchErrorEvent($user);
 			$this->addFlash('notice', "Le code de réinitialisation est expiré, merci de recommencer la procédure.");
+
 			return $this->redirectToRoute('rudakUser_lost_pwd');
 		}
 		// Récupération du formulaire
@@ -150,16 +138,60 @@ class PasswordController extends Controller
 			if ($rudakConfig['autologin_before_reinit']) {
 				$this->autoLogin($user, $request);
 			}
+
 			return $this->redirectToRoute('homepage');
 		}
+
 		return $this->render('RudakUserBundle:Password:init-form.html.twig', array(
 			'form' => $form->createView(),
 			'user' => $user
 		));
 	}
 
+	public function autoGenAnswerAction(Request $request, $hash)
+	{
+		$em       = $this->getDoctrine()->getManager();
+		$hashUser = $em->getRepository('RudakUserBundle:User')->getUserByHash($hash);
+		if (!$hashUser) {
+			$this->addFlash('notice', 'Impossible de trouver une correspondance avec ce lien de réinitialisation.');
+
+			return $this->redirectToRoute('homepage');
+		}
+		// si deja connecté
+		if ($this->getUser() instanceof User) {
+
+			$user = $this->getUser();
+			// user different connecté
+			if ($hashUser !== $user) {
+				$this->addFlash('notice', 'Erreur ! Vous êtes déja connecté avec un autre compte !');
+
+				return $this->redirectToRoute('homepage');
+			} else {
+				// meme user connecté
+				$user->setSecurityHash(null);
+				$user->setSecurityHashExpireAt(null);
+
+				$em->persist($user);
+				$em->flush();
+			}
+			$this->addFlash('notice', 'Vous êtes déja connecté.');
+
+			return $this->redirectToRoute('homepage');
+		}
+
+		$this->autoLogin($hashUser, $request);
+		$this->addFlash('notice', 'Veuillez changer votre mot de passe, désactivation du lien de connexion.');
+		$hashUser->setSecurityHash(null);
+		$hashUser->setSecurityHashExpireAt(null);
+		$em->persist($hashUser);
+		$em->flush();
+
+		return $this->redirectToRoute('rudakUser_pwd_modification');
+	}
+
 	/**
 	 * Event correspondant a une erreur de reinitialisation de password
+	 *
 	 * @param $user
 	 */
 	private function launchErrorEvent($user)
@@ -173,6 +205,7 @@ class PasswordController extends Controller
 
 	/**
 	 * Crée et renvoie le formulaire
+	 *
 	 * @param RecoverPassword $changePasswordModel
 	 * @return \Symfony\Component\Form\Form
 	 */
@@ -188,8 +221,9 @@ class PasswordController extends Controller
 
 	/**
 	 * Log le gars qui vient de recover son password avec succès
+	 *
 	 * @param User $User
-	 * @param $request
+	 * @param      $request
 	 */
 	private function autoLogin(User $User, $request)
 	{
@@ -199,19 +233,5 @@ class PasswordController extends Controller
 		//maintenant il faut dispatch l'event du login 'classique'
 		$event = new InteractiveLoginEvent($request, $token);
 		$this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
-	}
-
-	/**
-	 * Renvoie un mot de passe a partir d'un user et d'un plain password
-	 * @param User $user
-	 * @param $plainPassword
-	 * @return mixed
-	 */
-	private function createPassword(User $user, $plainPassword)
-	{
-		$encoder = $this->container
-			->get('security.encoder_factory')
-			->getEncoder($user);
-		return $encoder->encodePassword($plainPassword, $user->getSalt());
 	}
 }
