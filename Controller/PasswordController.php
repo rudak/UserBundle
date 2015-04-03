@@ -179,10 +179,7 @@ class PasswordController extends Controller
 			return $this->redirectToRoute('homepage');
 		}
 
-<<<<<<< HEAD
 
-=======
->>>>>>> dev
 		$this->autoLogin($hashUser, $request);
 		$this->addFlash('notice', 'Veuillez changer votre mot de passe, désactivation du lien de connexion.');
 		$hashUser->setSecurityHash(null);
