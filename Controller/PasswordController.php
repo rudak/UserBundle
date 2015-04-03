@@ -150,33 +150,41 @@ class PasswordController extends Controller
 
 	public function autoGenAnswerAction(Request $request, $hash)
 	{
-		// si deja connecté on oublie ce lien.
+		$em       = $this->getDoctrine()->getManager();
+		$hashUser = $em->getRepository('RudakUserBundle:User')->getUserByHash($hash);
+		if (!$hashUser) {
+			$this->addFlash('notice', 'Impossible de trouver une correspondance avec ce lien de réinitialisation.');
+
+			return $this->redirectToRoute('homepage');
+		}
+		// si deja connecté
 		if ($this->getUser() instanceof User) {
+
 			$user = $this->getUser();
-			$user->setSecurityHash(null);
-			$user->setSecurityHashExpireAt(null);
+			// user different connecté
+			if ($hashUser !== $user) {
+				$this->addFlash('notice', 'Erreur ! Vous êtes déja connecté avec un autre compte !');
 
-			$em = $this->getDoctrine()->getManager();
-			$em->persist($user);
-			$em->flush();
+				return $this->redirectToRoute('homepage');
+			} else {
+				// meme user connecté
+				$user->setSecurityHash(null);
+				$user->setSecurityHashExpireAt(null);
 
-			$this->addFlash('notice', 'Vous êtes déja connecté, ce lien va être désactivé.');
-
-			return $this->redirectToRoute('homepage');
-		}
-		$em   = $this->getDoctrine()->getManager();
-		$user = $em->getRepository('RudakUserBundle:User')->getUserByHash($hash);
-
-		if (!$user) {
-			$this->addFlash('notice', 'Impossible de trouver une correspondance avec cette clé de réinitialisation.');
+				$em->persist($user);
+				$em->flush();
+			}
+			$this->addFlash('notice', 'Vous êtes déja connecté.');
 
 			return $this->redirectToRoute('homepage');
 		}
-		$this->autoLogin($user, $request);
+
+
+		$this->autoLogin($hashUser, $request);
 		$this->addFlash('notice', 'Veuillez changer votre mot de passe, désactivation du lien de connexion.');
-		$user->setSecurityHash(null);
-		$user->setSecurityHashExpireAt(null);
-		$em->persist($user);
+		$hashUser->setSecurityHash(null);
+		$hashUser->setSecurityHashExpireAt(null);
+		$em->persist($hashUser);
 		$em->flush();
 
 		return $this->redirectToRoute('rudakUser_pwd_modification');
