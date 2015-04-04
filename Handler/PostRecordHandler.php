@@ -25,7 +25,7 @@ class PostRecordHandler
             return;
         }
         // Création du hash de vérification
-        $this->user->setRecoveryHash(sha1(uniqid(rand(), TRUE)));
+        $this->user->setSecurityHash(sha1(uniqid(rand(), TRUE)));
         // creation du mail
         $message = \Swift_Message::newInstance()
             ->setSubject("Validation de votre adresse email")

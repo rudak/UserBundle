@@ -1,7 +1,7 @@
 <?php
 namespace Rudak\UserBundle\Listener;
 
-use Rudak\UserBundle\Event\EmailValidationEvent;
+use Rudak\UserBundle\Event\BaseEvent;
 use Rudak\UserBundle\Handler\UserHandler;
 
 class EmailValidationListener
@@ -14,7 +14,7 @@ class EmailValidationListener
 		$this->userHandler = $userHandler;
 	}
 
-	public function validationSuccess(EmailValidationEvent $event)
+	public function validationSuccess(BaseEvent $event)
 	{
 		$this->userHandler->emailValidationSuccess($event->getUser());
 	}

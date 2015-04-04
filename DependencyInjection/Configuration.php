@@ -27,10 +27,6 @@ class Configuration implements ConfigurationInterface
 						 ->isRequired()
 						 ->cannotBeEmpty()
 					 ->end()
-					 ->scalarNode('reinit_autogen_pwd')
-						->defaultFalse()
-						->isRequired()
-					 ->end()
 				 ->end();
 
 		return $treeBuilder;

@@ -4,7 +4,6 @@ namespace Rudak\UserBundle\Controller;
 
 use Rudak\UserBundle\Entity\User;
 use Rudak\UserBundle\Event\BaseEvent;
-use Rudak\UserBundle\Event\ChangePasswordEvent;
 use Rudak\UserBundle\Event\UserEvents;
 use Rudak\UserBundle\Form\ChangePasswordType;
 use Rudak\UserBundle\Form\LostPwdType;
@@ -32,9 +31,10 @@ class PasswordController extends Controller
 			return $this->redirectToRoute('homepage');
 		}
 		$changePassword = new ChangePassword();
-		$form           = $this->createForm(new ChangePasswordType(), $changePassword, array(
-			'action' => $this->generateUrl('rudakUser_pwd_modification')
-		));
+		$form           = $this->createForm(new ChangePasswordType(), $changePassword,
+			array(
+				'action' => $this->generateUrl('rudakUser_pwd_modification')
+			));
 
 		$form->handleRequest($request);
 
@@ -43,20 +43,20 @@ class PasswordController extends Controller
 			$user = $this->getUser();
 			if ($form->isValid()) {
 				$user->setPlainPassword($changePassword->getNewPassword());
-				$changePasswordEvent = new ChangePasswordEvent($user);
+				$BaseEvent = new BaseEvent($user);
 				// evenement moddification de mot de passe
 				$this
 					->get('event_dispatcher')
-					->dispatch(UserEvents::USER_PASSWORD_CHANGE_SUCCESS, $changePasswordEvent);
+					->dispatch(UserEvents::USER_PASSWORD_CHANGE_SUCCESS, $BaseEvent);
 				$this->addFlash('notice', 'Mot de passe changé avec succès.');
 
 				return $this->redirect($this->generateUrl('rudakUser_profile'));
 			} else {
 				// formulaire invalide
-				$changePasswordEvent = new ChangePasswordEvent($user);
+				$BaseEvent = new BaseEvent($user);
 				$this
 					->get('event_dispatcher')
-					->dispatch(UserEvents::USER_PASSWORD_CHANGE_ERROR, $changePasswordEvent);
+					->dispatch(UserEvents::USER_PASSWORD_CHANGE_ERROR, $BaseEvent);
 			}
 		}
 
@@ -124,10 +124,10 @@ class PasswordController extends Controller
 		$form->handleRequest($request);
 		if ($form->isValid()) {
 			$user->setPlainPassword($changePasswordModel->getNewPassword());
-			$changePasswordEvent = new ChangePasswordEvent($user);
+			$BaseEvent = new BaseEvent($user);
 			$this
 				->get('event_dispatcher')
-				->dispatch(UserEvents::USER_PASSWORD_RECOVERED, $changePasswordEvent);
+				->dispatch(UserEvents::USER_PASSWORD_RECOVERED, $BaseEvent);
 
 			$em->persist($user);
 			$em->flush();
@@ -146,48 +146,6 @@ class PasswordController extends Controller
 			'form' => $form->createView(),
 			'user' => $user
 		));
-	}
-
-	public function autoGenAnswerAction(Request $request, $hash)
-	{
-		$em       = $this->getDoctrine()->getManager();
-		$hashUser = $em->getRepository('RudakUserBundle:User')->getUserByHash($hash);
-		if (!$hashUser) {
-			$this->addFlash('notice', 'Impossible de trouver une correspondance avec ce lien de réinitialisation.');
-
-			return $this->redirectToRoute('homepage');
-		}
-		// si deja connecté
-		if ($this->getUser() instanceof User) {
-
-			$user = $this->getUser();
-			// user different connecté
-			if ($hashUser !== $user) {
-				$this->addFlash('notice', 'Erreur ! Vous êtes déja connecté avec un autre compte !');
-
-				return $this->redirectToRoute('homepage');
-			} else {
-				// meme user connecté
-				$user->setSecurityHash(null);
-				$user->setSecurityHashExpireAt(null);
-
-				$em->persist($user);
-				$em->flush();
-			}
-			$this->addFlash('notice', 'Vous êtes déja connecté.');
-
-			return $this->redirectToRoute('homepage');
-		}
-
-
-		$this->autoLogin($hashUser, $request);
-		$this->addFlash('notice', 'Veuillez changer votre mot de passe, désactivation du lien de connexion.');
-		$hashUser->setSecurityHash(null);
-		$hashUser->setSecurityHashExpireAt(null);
-		$em->persist($hashUser);
-		$em->flush();
-
-		return $this->redirectToRoute('rudakUser_pwd_modification');
 	}
 
 	/**

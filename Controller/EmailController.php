@@ -2,7 +2,7 @@
 
 namespace Rudak\UserBundle\Controller;
 
-use Rudak\UserBundle\Event\RecordEvent;
+use Rudak\UserBundle\Event\BaseEvent;
 use Rudak\UserBundle\Event\UserEvents;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,10 +29,10 @@ class EmailController extends Controller
 			$formData = $form->getData();
 			$user->setEmailTmp($formData['email']);
 			$this->addFlash('notice', 'Un mail vous a été envoyé pour valider cette nouvelle adresse. Sans validations aucune modification ne sera effectuée.');
-			$RecordEvent = new RecordEvent($user);
+			$BaseEvent = new BaseEvent($user);
 			$this
 				->get('event_dispatcher')
-				->dispatch(UserEvents::USER_EMAIL_CHANGE_REQUEST, $RecordEvent);
+				->dispatch(UserEvents::USER_EMAIL_CHANGE_REQUEST, $BaseEvent);
 			return $this->redirectToRoute('homepage');
 		}
 		return $this->render('RudakUserBundle:Default:change-email.html.twig', array(
@@ -58,10 +58,10 @@ class EmailController extends Controller
 			$this->addFlash('notice', 'Ce lien de validation est expiré.');
 			return $this->redirectToRoute('homepage');
 		}
-		$RecordEvent = new RecordEvent($user);
+		$BaseEvent = new BaseEvent($user);
 		$this
 			->get('event_dispatcher')
-			->dispatch(UserEvents::USER_EMAIL_CHANGE_SUCCESS, $RecordEvent);
+			->dispatch(UserEvents::USER_EMAIL_CHANGE_SUCCESS, $BaseEvent);
 		$this->addFlash('notice', 'Adresse email modifiée avec succès.');
 		return $this->redirectToRoute('homepage');
 	}

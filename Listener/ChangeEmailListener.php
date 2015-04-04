@@ -9,7 +9,7 @@
 namespace Rudak\UserBundle\Listener;
 
 
-use Rudak\UserBundle\Event\RecordEvent;
+use Rudak\UserBundle\Event\BaseEvent;
 use Rudak\UserBundle\Handler\UserHandler;
 
 class ChangeEmailListener
@@ -21,12 +21,12 @@ class ChangeEmailListener
 		$this->userHandler = $userHandler;
 	}
 
-	public function emailChangeRequest(RecordEvent $event)
+	public function emailChangeRequest(BaseEvent $event)
 	{
 		$this->userHandler->changeEmailRequest($event->getUser());
 	}
 
-	public function emailChangeSuccess(RecordEvent $event)
+	public function emailChangeSuccess(BaseEvent $event)
 	{
 		$this->userHandler->changeEmailSuccess($event->getUser());
 	}

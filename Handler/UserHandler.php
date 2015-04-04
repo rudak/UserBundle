@@ -69,26 +69,13 @@ class UserHandler
 
 
 	/**
-	 * Retourne le mot de passe encodé
-	 *
-	 * @param $user
-	 * @return string
-	 */
-	private function getEncodedPassword(User $user)
-	{
-		$encoder = $this->encoder->getEncoder($user);
-
-		return $encoder->encodePassword($user->getPlainPassword(), $user->getSalt());
-	}
-
-
-	/**
 	 * Envoi le mail pour prevenir du changement de mot de passe
 	 *
 	 * @param array $options
 	 */
 	private function sendMail(array $options)
 	{
+		# TODO send text email too
 		$message = \Swift_Message::newInstance()
 								 ->setSubject($options['subject'])
 								 ->setFrom($options['from'])
@@ -202,30 +189,6 @@ class UserHandler
 		$session->getFlashBag()->add('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
 	}
 
-	public function autoGenPasswordRequest(User $user)
-	{
-		$plainPassword = strtoupper(substr(str_shuffle('azertyuiopqsdfghjklmwxcvbn0123456789'), 0, 6));
-		$user->setPlainPassword($plainPassword);
-		$newPassword = $this->getEncodedPassword($user);
-		$user->setPassword($newPassword);
-		$this->setNewSecurityHash($user);
-		$this->sendMail(array(
-			'subject' => 'Nouveau mot de passe provisoire',
-			'from'    => $this->config['from'],
-			'to'      => $user->getEmail(),
-			'body'    => $this->templating->render('RudakUserBundle:Email:autogen-password.html.twig', array(
-				'user' => $user,
-				'link' => $this->router->generate('rudakUser_autogen_pwd_answer', array(
-					'hash' => $user->getSecurityHash()
-				), true),
-				'date' => new \Datetime('NOW'),
-			)),
-		));
-		$user->eraseCredentials();
-		$session = new Session();
-		$session->getFlashBag()->add('notice', 'Un email contenant un mot de passe provisoire vous a été envoyé.');
-	}
-
 	private function setNewSecurityHash(User $user)
 	{
 		$user->setSecurityHash(sha1(md5(uniqid(null, true))));
@@ -236,5 +199,18 @@ class UserHandler
 	{
 		$user->setSecurityHash(null);
 		$user->setSecurityHashExpireAt(null);
+	}
+
+	/**
+	 * Retourne le mot de passe encodé
+	 *
+	 * @param $user
+	 * @return string
+	 */
+	private function getEncodedPassword(User $user)
+	{
+		$encoder = $this->encoder->getEncoder($user);
+
+		return $encoder->encodePassword($user->getPlainPassword(), $user->getSalt());
 	}
 }
