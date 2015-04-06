@@ -5,12 +5,11 @@ namespace Rudak\UserBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 
-class IncludeController extends Controller
+class BootstrapController extends Controller
 {
-
-	public function userAreaAction()
+	public function getTopBarAction()
 	{
-		$content = $this->renderView('RudakUserBundle:Include:user-area.html.twig');
+		$content = $this->renderView('RudakUserBundle:Bootstrap:topBar.html.twig');
 
 		return new Response($content);
 	}

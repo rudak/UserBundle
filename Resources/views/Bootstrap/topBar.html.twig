@@ -1,0 +1,23 @@
+{% if app.user %}
+    <li>
+        <p class="navbar-text">
+            Connecté en tant que
+            <a href="{{ path('rudakUser_profile') }}" title="mon profil">
+                {{ app.user.username }}
+            </a>
+        </p>
+        <p class="navbar-text">
+            <a href="{{ path('logout') }}" title="Deconnexion">
+                Deconnexion
+            </a>
+        </p>
+    </li>
+{% else %}
+    <li>
+        <p class="navbar-text">
+            <a href="{{ path('login') }}" class="navbar-link" title="Se connecter">
+                Se connecter
+            </a>
+        </p>
+    </li>
+{% endif %}
