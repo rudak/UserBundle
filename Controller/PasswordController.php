@@ -31,10 +31,9 @@ class PasswordController extends Controller
 			return $this->redirectToRoute('homepage');
 		}
 		$changePassword = new ChangePassword();
-		$form           = $this->createForm(new ChangePasswordType(), $changePassword,
-			array(
-				'action' => $this->generateUrl('rudakUser_pwd_modification')
-			));
+		$form           = $this->createForm(new ChangePasswordType(), $changePassword, array(
+			'action' => $this->generateUrl('rudakUser_pwd_modification')
+		));
 
 		$form->handleRequest($request);
 
@@ -44,7 +43,7 @@ class PasswordController extends Controller
 			if ($form->isValid()) {
 				$user->setPlainPassword($changePassword->getNewPassword());
 				$BaseEvent = new BaseEvent($user);
-				// evenement moddification de mot de passe
+				// evenement modification de mot de passe
 				$this
 					->get('event_dispatcher')
 					->dispatch(UserEvents::USER_PASSWORD_CHANGE_SUCCESS, $BaseEvent);
@@ -79,6 +78,7 @@ class PasswordController extends Controller
 		$user = $em->getRepository('RudakUserBundle:User')->checkIfUserExists($data);
 
 		if ($user && $user instanceof User) {
+			# TODO : (virer ca, la config est passée dans le userhandler par default lors de la construction)
 			$rudakConfig = $this->container->getParameter('rudak.user.config');
 			$baseEvent   = new BaseEvent($user, $rudakConfig);
 			$this

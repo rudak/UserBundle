@@ -59,8 +59,9 @@ class UserHandler
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
 			'body'    => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
-				'user' => $user,
-				'date' => new \Datetime('NOW'),
+				'user'    => $user,
+				'date'    => new \Datetime('NOW'),
+				'website' => $this->config['websiteName'],
 			))
 		));
 		$this->updateUser($user);
@@ -102,8 +103,9 @@ class UserHandler
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
 			'body'    => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
-				'user' => $user,
-				'date' => new \Datetime('NOW'),
+				'user'    => $user,
+				'date'    => new \Datetime('NOW'),
+				'website' => $this->config['websiteName'],
 			))
 		));
 	}
@@ -116,8 +118,9 @@ class UserHandler
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
 			'body'    => $this->templating->render('RudakUserBundle:Email:change-password-error.html.twig', array(
-				'user' => $user,
-				'date' => new \Datetime('NOW'),
+				'user'    => $user,
+				'date'    => new \Datetime('NOW'),
+				'website' => $this->config['websiteName'],
 			))
 		));
 	}
@@ -138,11 +141,12 @@ class UserHandler
 			'from'    => $this->config['from'],
 			'to'      => $newEmail,
 			'body'    => $this->templating->render('RudakUserBundle:Email:change-email-request.html.twig', array(
-				'user' => $user,
-				'link' => $this->router->generate('rudakUser_email_change_confirmation', array(
+				'user'    => $user,
+				'link'    => $this->router->generate('rudakUser_email_change_confirmation', array(
 					'hash' => $user->getSecurityHash(),
 				), true),
-				'date' => new \Datetime('NOW'),
+				'date'    => new \Datetime('NOW'),
+				'website' => $this->config['websiteName'],
 			)),
 		));
 		$this->updateUser($user);
@@ -156,8 +160,9 @@ class UserHandler
 			'from'    => $this->config['from'],
 			'to'      => $newEmail,
 			'body'    => $this->templating->render('RudakUserBundle:Email:change-email.html.twig', array(
-				'user' => $user,
-				'date' => new \Datetime('NOW'),
+				'user'    => $user,
+				'date'    => new \Datetime('NOW'),
+				'website' => $this->config['websiteName'],
 			)),
 		));
 		$user->setEmailTmp(null);
@@ -175,11 +180,12 @@ class UserHandler
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
 			'body'    => $this->templating->render('RudakUserBundle:Email:link-password-init.html.twig', array(
-				'user' => $user,
-				'link' => $this->router->generate('rudakUser_reinit_mail_answer', array(
+				'user'    => $user,
+				'link'    => $this->router->generate('rudakUser_reinit_mail_answer', array(
 					'hash' => $user->getSecurityHash()
 				), true),
-				'date' => new \Datetime('NOW'),
+				'date'    => new \Datetime('NOW'),
+				'website' => $this->config['websiteName'],
 			)),
 		));
 		$session = new Session();
@@ -190,9 +196,10 @@ class UserHandler
 	{
 		$this->setNewSecurityHash($user);
 		$content = $this->templating->render('RudakUserBundle:Email:post-record.html.twig', array(
-			'user' => $user,
-			'date' => new \Datetime('NOW'),
-			'site' => $this->router->generate('record_validing_email', array(
+			'user'    => $user,
+			'date'    => new \Datetime('NOW'),
+			'website' => $this->config['websiteName'],
+			'site'    => $this->router->generate('record_validing_email', array(
 				'hash' => $user->getSecurityHash()
 			), true)
 		));
