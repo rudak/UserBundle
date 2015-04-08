@@ -17,7 +17,7 @@ record_create:
     pattern:     /create-user
     defaults: { _controller: RudakUserBundle:Record:create }
     requirements:
-        _method: POST
+        #_method: POST
 
 record_validing_email:
     pattern:     /email-validation/{hash}

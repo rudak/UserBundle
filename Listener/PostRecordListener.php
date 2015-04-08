@@ -9,23 +9,21 @@
 namespace Rudak\UserBundle\Listener;
 
 use Rudak\UserBundle\Event\BaseEvent;
-use Rudak\UserBundle\Handler\PostRecordHandler;
+use Rudak\UserBundle\Handler\UserHandler;
 
 class PostRecordListener
 {
 
-    private $postRecordHandler;
+	private $userHandler;
 
-    function __construct(PostRecordHandler $postRecordHandler)
-    {
-        $this->postRecordHandler = $postRecordHandler;
-    }
+	function __construct(UserHandler $userHandler)
+	{
+		$this->userHandler = $userHandler;
+	}
 
 
-    public function updateUser(BaseEvent $event)
-    {
-        $this->postRecordHandler->setUser($event->getUser());
-        $this->postRecordHandler->justRecorded();
-        $event->setUser($this->postRecordHandler->getUser());
-    }
+	public function updateUser(BaseEvent $event)
+	{
+		$this->userHandler->postCreate($event->getUser());
+	}
 } 

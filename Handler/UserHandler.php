@@ -63,8 +63,7 @@ class UserHandler
 				'date' => new \Datetime('NOW'),
 			))
 		));
-		$this->em->persist($user);
-		$this->em->flush();
+		$this->updateUser($user);
 	}
 
 
@@ -146,8 +145,7 @@ class UserHandler
 				'date' => new \Datetime('NOW'),
 			)),
 		));
-		$this->em->persist($user);
-		$this->em->flush();
+		$this->updateUser($user);
 	}
 
 	public function changeEmailSuccess(User $user)
@@ -166,8 +164,7 @@ class UserHandler
 		$user->setEmail($newEmail);
 		$this->eraseSecurityHash($user);
 
-		$this->em->persist($user);
-		$this->em->flush();
+		$this->updateUser($user);
 	}
 
 	public function reinitPasswordRequest(User $user)
@@ -187,6 +184,25 @@ class UserHandler
 		));
 		$session = new Session();
 		$session->getFlashBag()->add('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
+	}
+
+	public function postCreate(User $user)
+	{
+		$this->setNewSecurityHash($user);
+		$content = $this->templating->render('RudakUserBundle:Email:post-record.html.twig', array(
+			'user' => $user,
+			'date' => new \Datetime('NOW'),
+			'site' => $this->router->generate('record_validing_email', array(
+				'hash' => $user->getSecurityHash()
+			), true)
+		));
+		$this->sendMail(array(
+			'subject' => 'Mot de passe perdu',
+			'from'    => $this->config['from'],
+			'to'      => $user->getEmail(),
+			'body'    => $content,
+		));
+		$this->updateUser($user);
 	}
 
 	private function setNewSecurityHash(User $user)
@@ -212,5 +228,11 @@ class UserHandler
 		$encoder = $this->encoder->getEncoder($user);
 
 		return $encoder->encodePassword($user->getPlainPassword(), $user->getSalt());
+	}
+
+	private function updateUser(User $user)
+	{
+		$this->em->persist($user);
+		$this->em->flush();
 	}
 }

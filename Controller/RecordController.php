@@ -40,38 +40,41 @@ class RecordController extends Controller
 		$User = new User();
 		$form = $this->createNewForm($User);
 		$form->handleRequest($request);
-		if ($form->isValid()) {
-			$User->setPassword($this->createPassword($User));
+		if ($request->getMethod() == 'POST') {
+			if ($form->isValid()) {
+				$User->setPassword($this->createPassword($User));
 
-			if (!$this->checkDuplicate($User)) {
+				if (!$this->checkDuplicate($User)) {
 
-				$BaseEvent = new BaseEvent($User);
-				$this
-					->get('event_dispatcher')
-					->dispatch(UserEvents::USER_RECORD, $BaseEvent);
+					$BaseEvent = new BaseEvent($User);
+					$this
+						->get('event_dispatcher')
+						->dispatch(UserEvents::USER_RECORD, $BaseEvent);
 
-				$em = $this->getDoctrine()->getManager();
-				$em->persist($User);
-				$em->flush();
+					$em = $this->getDoctrine()->getManager();
+					$em->persist($User);
+					$em->flush();
 
-				$this->addFlash('notice', 'Utilisateur ' . $User->getUsername() . ' créé.');
+					$this->addFlash('notice', 'Utilisateur ' . $User->getUsername() . ' créé.');
 
-				return $this->render('RudakUserBundle:Record:after.html.twig', array(
-					'user' => $User
-				));
+					return $this->render('RudakUserBundle:Record:after.html.twig', array(
+						'user' => $User
+					));
+				} else {
+					$this->addFlash(
+						'notice',
+						'Utilisateur possedant le meme pseudo ou mot de passe existe deja dans la base'
+					);
+				}
 			} else {
 				$this->addFlash(
 					'notice',
-					'Utilisateur possedant le meme pseudo ou mot de passe existe deja dans la base'
+					'Formulaire invalide !'
 				);
 			}
 		} else {
-			$this->addFlash(
-				'notice',
-				'Formulaire invalide !'
-			);
+			$this->addFlash('notice', 'Methode non autorisée.');
 		}
-
 
 		return $this->redirect($this->generateUrl('record_new'));
 	}
