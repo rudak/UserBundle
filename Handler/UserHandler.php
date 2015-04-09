@@ -67,22 +67,14 @@ class UserHandler
 
 
 	/**
-	 * Envoi le mail pour prevenir du changement de mot de passe
+	 * Envoi le mail via emailHandler
 	 *
 	 * @param array $options
 	 */
 	private function sendMail(array $options)
 	{
-		# TODO send text email too
-		$message = \Swift_Message::newInstance()
-								 ->setSubject($options['subject'])
-								 ->setFrom($options['from'])
-								 ->setContentType("text/html")
-								 ->setTo($options['to'])
-								 ->addPart($options['text'], 'text/plain')
-								 ->setBody($options['body']);
-		// envoi
-		$this->mailer->send($message);
+		$EmailHandler = new EmailHandler($this->mailer,$this->templating);
+		$EmailHandler->sendMail($options);
 	}
 
 	/**
@@ -229,6 +221,8 @@ class UserHandler
 	private function getEmailTemplates(User $user, $template, $link = null)
 	{
 		$date = new \Datetime('NOW');
+		# TODO: basculer ca du coté emailHandler
+		# TODO: voir les dates de validité, je crois que je me suis planté avec NOW...
 
 		return array(
 			'html' => $this->templating->render('RudakUserBundle:Email:' . $template . '.html.twig', array(
