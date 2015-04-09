@@ -54,15 +54,13 @@ class UserHandler
 	{
 		$user->setPassword($this->getEncodedPassword($user));
 
+		$templates = $this->getEmailTemplates($user, 'change-password');
 		$this->sendMail(array(
 			'subject' => "Modification de votre mot de passe.",
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
-			'body'    => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
-				'user'    => $user,
-				'date'    => new \Datetime('NOW'),
-				'website' => $this->config['websiteName'],
-			))
+			'body'    => $templates['html'],
+			'text'    => $templates['text'],
 		));
 		$this->updateUser($user);
 	}
@@ -99,30 +97,26 @@ class UserHandler
 		$user->setIsActive(true);
 		$user->setPassword($this->getEncodedPassword($user));
 		$user->setPlainPassword(null);
+		$templates = $this->getEmailTemplates($user, 'change-password');
 		$this->sendMail(array(
 			'subject' => "Réinitialisation de votre mot de passe.",
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
-			'body'    => $this->templating->render('RudakUserBundle:Email:change-password.html.twig', array(
-				'user'    => $user,
-				'date'    => new \Datetime('NOW'),
-				'website' => $this->config['websiteName'],
-			))
+			'body'    => $templates['html'],
+			'text'    => $templates['text'],
 		));
 	}
 
 
 	public function changePasswordError(User $user)
 	{
+		$templates = $this->getEmailTemplates($user, 'change-password-error');
 		$this->sendMail(array(
 			'subject' => "Echec de la modification de votre mot de passe.",
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
-			'body'    => $this->templating->render('RudakUserBundle:Email:change-password-error.html.twig', array(
-				'user'    => $user,
-				'date'    => new \Datetime('NOW'),
-				'website' => $this->config['websiteName'],
-			))
+			'body'    => $templates['html'],
+			'text'    => $templates['text'],
 		));
 	}
 
@@ -137,7 +131,8 @@ class UserHandler
 	{
 		$newEmail = $user->getEmailTmp();
 		$this->setNewSecurityHash($user);
-		$templates = $this->getEmailTemplates($user, 'change-email-request');
+		$url       = $this->router->generate('rudakUser_email_change_confirmation', array('hash' => $user->getSecurityHash(),), true);
+		$templates = $this->getEmailTemplates($user, 'change-email-request', $url);
 		$this->sendMail(array(
 			'subject' => 'Demande de changement d\'adresse email',
 			'from'    => $this->config['from'],
@@ -233,17 +228,20 @@ class UserHandler
 
 	private function getEmailTemplates(User $user, $template, $link = null)
 	{
+		$date = new \Datetime('NOW');
+
 		return array(
 			'html' => $this->templating->render('RudakUserBundle:Email:' . $template . '.html.twig', array(
 				'user'    => $user,
-				'date'    => new \Datetime('NOW'),
+				'date'    => $date,
 				'website' => $this->config['websiteName'],
 				'link'    => $link
 			)),
 			'text' => $this->templating->render('RudakUserBundle:Email:' . $template . '.txt.twig', array(
 				'user'    => $user,
 				'website' => $this->config['websiteName'],
-				'link'    => $link
+				'link'    => $link,
+				'date'    => $date,
 			))
 		);
 
