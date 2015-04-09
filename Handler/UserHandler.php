@@ -137,34 +137,27 @@ class UserHandler
 	{
 		$newEmail = $user->getEmailTmp();
 		$this->setNewSecurityHash($user);
+		$templates = $this->getEmailTemplates($user, 'change-email-request');
 		$this->sendMail(array(
 			'subject' => 'Demande de changement d\'adresse email',
 			'from'    => $this->config['from'],
 			'to'      => $newEmail,
-			'body'    => $this->templating->render('RudakUserBundle:Email:change-email-request.html.twig', array(
-				'user'    => $user,
-				'link'    => $this->router->generate('rudakUser_email_change_confirmation', array(
-					'hash' => $user->getSecurityHash(),
-				), true),
-				'date'    => new \Datetime('NOW'),
-				'website' => $this->config['websiteName'],
-			)),
+			'body'    => $templates['html'],
+			'text'    => $templates['text'],
 		));
 		$this->updateUser($user);
 	}
 
 	public function changeEmailSuccess(User $user)
 	{
-		$newEmail = $user->getEmailTmp();
+		$newEmail  = $user->getEmailTmp();
+		$templates = $this->getEmailTemplates($user, 'change-email');
 		$this->sendMail(array(
 			'subject' => 'Changement d\'adresse email effectuée',
 			'from'    => $this->config['from'],
 			'to'      => $newEmail,
-			'body'    => $this->templating->render('RudakUserBundle:Email:change-email.html.twig', array(
-				'user'    => $user,
-				'date'    => new \Datetime('NOW'),
-				'website' => $this->config['websiteName'],
-			)),
+			'body'    => $templates['html'],
+			'text'    => $templates['text']
 		));
 		$user->setEmailTmp(null);
 		$user->setEmail($newEmail);
@@ -176,27 +169,17 @@ class UserHandler
 	public function reinitPasswordRequest(User $user)
 	{
 		$this->setNewSecurityHash($user);
-		$link    = $this->router->generate('rudakUser_reinit_mail_answer', array(
+		$url       = $this->router->generate('rudakUser_reinit_mail_answer', array(
 			'hash' => $user->getSecurityHash()
 		), true);
-		$content = $this->templating->render('RudakUserBundle:Email:link-password-init.html.twig', array(
-			'user'    => $user,
-			'link'    => $link,
-			'date'    => new \Datetime('NOW'),
-			'website' => $this->config['websiteName'],
-		));
-		$text    = $this->templating->render('RudakUserBundle:Email:link-password-init.txt.twig', array(
-			'user'    => $user,
-			'link'    => $link,
-			'date'    => new \Datetime('NOW'),
-			'website' => $this->config['websiteName'],
-		));
+		$templates = $this->getEmailTemplates($user, 'link-password-init', $url);
+
 		$this->sendMail(array(
 			'subject' => 'Mot de passe perdu',
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
-			'body'    => $content,
-			'text'    => $text
+			'body'    => $templates['html'],
+			'text'    => $templates['text'],
 		));
 		$session = new Session();
 		$session->getFlashBag()->add('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
@@ -205,27 +188,14 @@ class UserHandler
 	public function postCreate(User $user)
 	{
 		$this->setNewSecurityHash($user);
-		$content = $this->templating->render('RudakUserBundle:Email:post-record.html.twig', array(
-			'user'    => $user,
-			'date'    => new \Datetime('NOW'),
-			'website' => $this->config['websiteName'],
-			'site'    => $this->router->generate('record_validing_email', array(
-				'hash' => $user->getSecurityHash()
-			), true)
-		));
-		$text    = $this->templating->render('RudakUserBundle:Email:post-record.txt.twig', array(
-			'user'    => $user,
-			'website' => $this->config['websiteName'],
-			'site'    => $this->router->generate('record_validing_email', array(
-				'hash' => $user->getSecurityHash()
-			), true)
-		));
+		$url       = $this->router->generate('record_validing_email', array('hash' => $user->getSecurityHash()), true);
+		$templates = $this->getEmailTemplates($user, 'post-record', $url);
 		$this->sendMail(array(
 			'subject' => 'Création de compte',
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
-			'body'    => $content,
-			'text'    => $text,
+			'body'    => $templates['html'],
+			'text'    => $templates['text'],
 		));
 		$this->updateUser($user);
 	}
@@ -259,5 +229,23 @@ class UserHandler
 	{
 		$this->em->persist($user);
 		$this->em->flush();
+	}
+
+	private function getEmailTemplates(User $user, $template, $link = null)
+	{
+		return array(
+			'html' => $this->templating->render('RudakUserBundle:Email:' . $template . '.html.twig', array(
+				'user'    => $user,
+				'date'    => new \Datetime('NOW'),
+				'website' => $this->config['websiteName'],
+				'link'    => $link
+			)),
+			'text' => $this->templating->render('RudakUserBundle:Email:' . $template . '.txt.twig', array(
+				'user'    => $user,
+				'website' => $this->config['websiteName'],
+				'link'    => $link
+			))
+		);
+
 	}
 }
