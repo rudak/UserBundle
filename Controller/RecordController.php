@@ -55,11 +55,11 @@ class RecordController extends Controller
 					$em->persist($User);
 					$em->flush();
 
-					$this->addFlash('notice', 'Utilisateur ' . $User->getUsername() . ' créé.');
+					$this->addFlash('notice', 'Utilisateur ' . $User->getUsername() . ' créé. Un email
+					vient de vous etre envoyé, veuillez cliquer sur le lien de validation pour confirmer
+					votre adresse mail et valider l\'inscription.Merci beaucoup. ');
 
-					return $this->render('RudakUserBundle:Record:after.html.twig', array(
-						'user' => $User
-					));
+					return $this->redirectToRoute('homepage');
 				} else {
 					$this->addFlash(
 						'notice',

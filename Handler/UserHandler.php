@@ -81,6 +81,7 @@ class UserHandler
 								 ->setFrom($options['from'])
 								 ->setContentType("text/html")
 								 ->setTo($options['to'])
+								 ->addPart($options['text'], 'text/plain')
 								 ->setBody($options['body']);
 		// envoi
 		$this->mailer->send($message);
@@ -175,18 +176,27 @@ class UserHandler
 	public function reinitPasswordRequest(User $user)
 	{
 		$this->setNewSecurityHash($user);
+		$link    = $this->router->generate('rudakUser_reinit_mail_answer', array(
+			'hash' => $user->getSecurityHash()
+		), true);
+		$content = $this->templating->render('RudakUserBundle:Email:link-password-init.html.twig', array(
+			'user'    => $user,
+			'link'    => $link,
+			'date'    => new \Datetime('NOW'),
+			'website' => $this->config['websiteName'],
+		));
+		$text    = $this->templating->render('RudakUserBundle:Email:link-password-init.txt.twig', array(
+			'user'    => $user,
+			'link'    => $link,
+			'date'    => new \Datetime('NOW'),
+			'website' => $this->config['websiteName'],
+		));
 		$this->sendMail(array(
 			'subject' => 'Mot de passe perdu',
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
-			'body'    => $this->templating->render('RudakUserBundle:Email:link-password-init.html.twig', array(
-				'user'    => $user,
-				'link'    => $this->router->generate('rudakUser_reinit_mail_answer', array(
-					'hash' => $user->getSecurityHash()
-				), true),
-				'date'    => new \Datetime('NOW'),
-				'website' => $this->config['websiteName'],
-			)),
+			'body'    => $content,
+			'text'    => $text
 		));
 		$session = new Session();
 		$session->getFlashBag()->add('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
@@ -203,11 +213,19 @@ class UserHandler
 				'hash' => $user->getSecurityHash()
 			), true)
 		));
+		$text    = $this->templating->render('RudakUserBundle:Email:post-record.txt.twig', array(
+			'user'    => $user,
+			'website' => $this->config['websiteName'],
+			'site'    => $this->router->generate('record_validing_email', array(
+				'hash' => $user->getSecurityHash()
+			), true)
+		));
 		$this->sendMail(array(
-			'subject' => 'Mot de passe perdu',
+			'subject' => 'Création de compte',
 			'from'    => $this->config['from'],
 			'to'      => $user->getEmail(),
 			'body'    => $content,
+			'text'    => $text,
 		));
 		$this->updateUser($user);
 	}
