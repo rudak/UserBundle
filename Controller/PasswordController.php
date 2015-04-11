@@ -26,7 +26,7 @@ class PasswordController extends Controller
 	public function changePasswordAction(Request $request)
 	{
 		if (!$this->getUser()) {
-			$this->addFlash('notice', 'Vous devez etre loggé pour modifier votre mot de passe.');
+			$this->addFlash('warning', 'Vous devez etre loggé pour modifier votre mot de passe.');
 
 			return $this->redirectToRoute($this->getHomepageRoute());
 		}
@@ -47,7 +47,7 @@ class PasswordController extends Controller
 				$this
 					->get('event_dispatcher')
 					->dispatch(UserEvents::USER_PASSWORD_CHANGE_SUCCESS, $BaseEvent);
-				$this->addFlash('notice', 'Mot de passe changé avec succès.');
+				$this->addFlash('success', 'Mot de passe changé avec succès.');
 
 				return $this->redirect($this->generateUrl('rudakUser_profile'));
 			} else {
@@ -78,16 +78,15 @@ class PasswordController extends Controller
 		$user = $em->getRepository('RudakUserBundle:User')->checkIfUserExists($data);
 
 		if ($user && $user instanceof User) {
-			# TODO : (virer ca, la config est passée dans le userhandler par default lors de la construction)
-			$rudakConfig = $this->container->getParameter('rudak.user.config');
-			$baseEvent   = new BaseEvent($user, $rudakConfig);
+			# TODO : j'ai viré la config dans le baseEvent, verifier que ca merde nul part
+			$baseEvent   = new BaseEvent($user);
 			$this
 				->get('event_dispatcher')
 				->dispatch(UserEvents::USER_PASSWORD_LOST_REQUEST, $baseEvent);
 			$em->persist($user);
 			$em->flush();
 		} else {
-			$this->addFlash('notice', 'Le nom d’utilisateur que vous avez entré ne correspond pas au nom enregistré sur nos serveurs pour votre compte.');
+			$this->addFlash('danger', 'Ce nom d’utilisateur ne correspond pas au nom enregistré sur nos serveurs.');
 		}
 
 		return $this->redirectToRoute($this->getHomepageRoute());
@@ -105,14 +104,14 @@ class PasswordController extends Controller
 		$user = $em->getRepository('RudakUserBundle:User')->getUserByHash($hash);
 
 		if (!$user) {
-			$this->addFlash('notice', 'Impossible de trouver une correspondance avec cette clé de réinitialisation.');
+			$this->addFlash('danger', 'Impossible de trouver une correspondance avec cette clé de réinitialisation.');
 
 			return $this->redirectToRoute($this->getHomepageRoute());
 		}
 
 		if (new \Datetime('NOW') > $user->getSecurityHashExpireAt()) {
 			$this->launchErrorEvent($user);
-			$this->addFlash('notice', "Le code de réinitialisation est expiré, merci de recommencer la procédure.");
+			$this->addFlash('warning', "Le code de réinitialisation est expiré, merci de recommencer la procédure.");
 
 			return $this->redirectToRoute('rudakUser_lost_pwd');
 		}
@@ -132,7 +131,7 @@ class PasswordController extends Controller
 			$em->persist($user);
 			$em->flush();
 
-			$this->addFlash('notice', "Le mot de passe a été changé avec succès.");
+			$this->addFlash('success', "Le mot de passe a été changé avec succès.");
 			// si l'autologin est ok
 			$rudakConfig = $this->container->getParameter('rudak.user.config');
 			if ($rudakConfig['autologin_before_reinit']) {

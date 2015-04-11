@@ -15,7 +15,7 @@ class EmailController extends Controller
 		$user = $this->getUser();
 		if (null != $user->getSecurityHash()) {
 			// validation en attente
-			$this->addFlash('notice', 'Suppression de la precedente confirmation par mail en attente.');
+			$this->addFlash('warning', 'Suppression de la precedente confirmation par mail en attente.');
 			$user->setSecurityHash(null);
 			$user->setSecurityHashExpireAt(null);
 			$em = $this->getDoctrine()->getManager();
@@ -33,7 +33,7 @@ class EmailController extends Controller
 		if ($form->isValid()) {
 			$formData = $form->getData();
 			$user->setEmailTmp($formData['email']);
-			$this->addFlash('notice', 'Un mail vous a été envoyé pour valider cette nouvelle adresse. Sans validations aucune modification ne sera effectuée.');
+			$this->addFlash('success', 'Un mail vous a été envoyé pour valider cette nouvelle adresse. Sans validations aucune modification ne sera effectuée.');
 			$BaseEvent = new BaseEvent($user);
 			$this
 				->get('event_dispatcher')
@@ -56,14 +56,14 @@ class EmailController extends Controller
 			// si le gars n'est pas loggé
 			$user = $repo->getUserByHash($hash);
 			if (!$user) {
-				$this->addFlash('notice', 'Ce lien de validation ne correspond a rien.');
+				$this->addFlash('danger', 'Ce lien de validation ne correspond a rien.');
 
 				return $this->redirectToRoute($this->getHomepageRoute());
 			}
 		}
 		if ($user->getSecurityHashExpireAt() < new \Datetime('NOW')) {
 			// expiré
-			$this->addFlash('notice', 'Ce lien de validation est inconnu ou expiré.');
+			$this->addFlash('danger', 'Ce lien de validation est inconnu ou expiré.');
 
 			return $this->redirectToRoute($this->getHomepageRoute());
 		}
@@ -71,7 +71,7 @@ class EmailController extends Controller
 		$this
 			->get('event_dispatcher')
 			->dispatch(UserEvents::USER_EMAIL_CHANGE_SUCCESS, $BaseEvent);
-		$this->addFlash('notice', 'Adresse email modifiée avec succès.');
+		$this->addFlash('success', 'Adresse email modifiée avec succès.');
 
 		return $this->redirectToRoute($this->getHomepageRoute());
 	}

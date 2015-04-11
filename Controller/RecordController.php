@@ -58,25 +58,25 @@ class RecordController extends Controller
 					$em->persist($User);
 					$em->flush();
 
-					$this->addFlash('notice', 'Utilisateur ' . $User->getUsername() . ' créé. Un email
+					$this->addFlash('info', 'Utilisateur ' . $User->getUsername() . ' créé. Un email
 					vient de vous etre envoyé, veuillez cliquer sur le lien de validation pour confirmer
-					votre adresse mail et valider l\'inscription.Merci beaucoup. ');
+					votre adresse mail et valider l\'inscription. Merci beaucoup. ');
 
 					return $this->redirectToRoute($this->getHomepageRoute());
 				} else {
 					$this->addFlash(
-						'notice',
+						'warning',
 						'Utilisateur possedant le meme pseudo ou adresse email existe deja dans la base'
 					);
 				}
 			} else {
 				$this->addFlash(
-					'notice',
+					'warning',
 					'Formulaire invalide !'
 				);
 			}
 		} else {
-			$this->addFlash('notice', 'Methode non autorisée.');
+			$this->addFlash('danger', 'Methode non autorisée.');
 		}
 
 		return $this->redirect($this->generateUrl('record_new'));
@@ -135,7 +135,7 @@ class RecordController extends Controller
 		$em->flush();
 
 		$this->addFlash(
-			'notice',
+			'success',
 			'Email de l\'utilisateur ' . $User->getUsername() . ' validée.'
 		);
 

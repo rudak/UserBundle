@@ -10,12 +10,9 @@ class BaseEvent extends KernelEvent
 
 	protected $user;
 
-	protected $options;
-
-	public function __construct(User $user, array $options = array())
+	public function __construct(User $user)
 	{
-		$this->user    = $user;
-		$this->options = $options;
+		$this->user = $user;
 	}
 
 	/**
@@ -32,22 +29,6 @@ class BaseEvent extends KernelEvent
 	public function setUser($user)
 	{
 		$this->user = $user;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getOptions()
-	{
-		return $this->options;
-	}
-
-	/**
-	 * @param array $options
-	 */
-	public function setOptions($options)
-	{
-		$this->options = $options;
 	}
 
 
