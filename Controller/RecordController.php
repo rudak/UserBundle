@@ -52,7 +52,7 @@ class RecordController extends Controller
 						->dispatch(UserEvents::USER_CREATED, $BaseEvent);
 					$this
 						->get('event_dispatcher')
-						->dispatch(UserEvents::USER_RECORD, $BaseEvent);
+						->dispatch(UserEvents::USER_POST_REGISTER, $BaseEvent);
 
 					$em = $this->getDoctrine()->getManager();
 					$em->persist($User);

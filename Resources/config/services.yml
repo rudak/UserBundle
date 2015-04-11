@@ -28,7 +28,7 @@ services:
         class: Rudak\UserBundle\Listener\PostRecordListener
         arguments: [@rudak_user.handler.user]
         tags:
-            - { name: kernel.event_listener, event: rudak_user.record, method: updateUser }
+            - { name: kernel.event_listener, event: rudak_user.post_register, method: updateUser }
 
     # Utilisateur créé
     rudak.user.listener.user.created:

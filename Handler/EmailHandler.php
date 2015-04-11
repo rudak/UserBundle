@@ -51,7 +51,6 @@ class EmailHandler
 	private function getEmailTemplates()
 	{
 		$date = new \Datetime('NOW');
-		# TODO: envoyer mail apres avoir validé l'adresse post record
 
 		return array(
 			'html' => $this->templating->render('RudakUserBundle:Email:' . $this->getOption('template') . '.html.twig', array(
