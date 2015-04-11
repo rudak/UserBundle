@@ -22,8 +22,6 @@ class EmailController extends Controller
 			$em = $this->getDoctrine()->getManager();
 			$em->persist($user);
 			$em->flush();
-
-			//return $this->redirectToRoute('rudakUser_profile');
 		}
 		$values = array(
 			'email' => $user->getEmail()
@@ -41,7 +39,7 @@ class EmailController extends Controller
 			$this
 				->get('event_dispatcher')
 				->dispatch(UserEvents::USER_EMAIL_CHANGE_REQUEST, $BaseEvent);
-
+			#todo passer route homepage en config
 			return $this->redirectToRoute('homepage');
 		}
 

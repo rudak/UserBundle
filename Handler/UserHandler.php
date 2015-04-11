@@ -47,29 +47,31 @@ class UserHandler
 
 	public function userCreated(User $user)
 	{
-		$url       = $this->router->generate('homepage', array(), true);
-		$templates = $this->getEmailTemplates($user, 'user-created', $url);
-		$this->sendMail(array(
-			'subject' => 'Votre compte utilisateur sur ' . $this->config['websiteName'] . ' !',
-			'from'    => $this->config['from'],
-			'to'      => $user->getEmail(),
-			'body'    => $templates['html'],
-			'text'    => $templates['text'],
-		));
+		$options      = array(
+			'subject'      => 'Votre compte utilisateur sur ' . $this->config['websiteName'] . ' !',
+			'from'         => $this->config['from'],
+			'to'           => $user->getEmail(),
+			'template'     => 'user-created',
+			'website_name' => $this->config['websiteName'],
+			'link'         => $this->router->generate('homepage', array(), true),
+		);
+		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
+		$EmailHandler->sendMail();
 	}
 
 	public function postCreate(User $user)
 	{
 		$this->setNewSecurityHash($user);
-		$url       = $this->router->generate('record_validing_email', array('hash' => $user->getSecurityHash()), true);
-		$templates = $this->getEmailTemplates($user, 'post-record', $url);
-		$this->sendMail(array(
-			'subject' => 'Validation ',
-			'from'    => $this->config['from'],
-			'to'      => $user->getEmail(),
-			'body'    => $templates['html'],
-			'text'    => $templates['text'],
-		));
+		$options      = array(
+			'subject'      => 'Validation',
+			'from'         => $this->config['from'],
+			'to'           => $user->getEmail(),
+			'template'     => 'post-record',
+			'website_name' => $this->config['websiteName'],
+			'link'         => $this->router->generate('record_validing_email', array('hash' => $user->getSecurityHash()), true),
+		);
+		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
+		$EmailHandler->sendMail();
 		$this->updateUser($user);
 	}
 
@@ -81,29 +83,54 @@ class UserHandler
 	public function changePasswordSuccessfull(User $user)
 	{
 		$user->setPassword($this->getEncodedPassword($user));
-
-		$templates = $this->getEmailTemplates($user, 'change-password');
-		$this->sendMail(array(
-			'subject' => "Modification de votre mot de passe.",
-			'from'    => $this->config['from'],
-			'to'      => $user->getEmail(),
-			'body'    => $templates['html'],
-			'text'    => $templates['text'],
-		));
+		$options      = array(
+			'subject'      => "Modification de votre mot de passe.",
+			'from'         => $this->config['from'],
+			'to'           => $user->getEmail(),
+			'template'     => 'change-password',
+			'website_name' => $this->config['websiteName']
+		);
+		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
+		$EmailHandler->sendMail();
 		$this->updateUser($user);
 	}
 
-
 	/**
-	 * Envoi le mail via emailHandler
+	 * erreur de changement du mot de passe
 	 *
-	 * @param array $options
+	 * @param User $user
 	 */
-	private function sendMail(array $options)
+	public function changePasswordError(User $user)
 	{
-		$EmailHandler = new EmailHandler($this->mailer, $this->templating);
-		$EmailHandler->sendMail($options);
+		$options      = array(
+			'subject'      => "Echec de la modification de votre mot de passe.",
+			'from'         => $this->config['from'],
+			'to'           => $user->getEmail(),
+			'template'     => 'change-password-error',
+			'website_name' => $this->config['websiteName'],
+		);
+		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
+		$EmailHandler->sendMail();
 	}
+
+	public function reinitPasswordRequest(User $user)
+	{
+		$this->setNewSecurityHash($user);
+		$options      = array(
+			'subject'      => 'Mot de passe perdu',
+			'from'         => $this->config['from'],
+			'to'           => $user->getEmail(),
+			'template'     => 'link-password-init',
+			'website_name' => $this->config['websiteName'],
+			'link'         => $this->router->generate('rudakUser_reinit_mail_answer', array('hash' => $user->getSecurityHash()), true),
+		);
+		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
+		$EmailHandler->sendMail();
+
+		$session = new Session();
+		$session->getFlashBag()->add('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
+	}
+
 
 	/**
 	 * Intervient lors du success de la réinitialisation du mot de passe
@@ -117,33 +144,18 @@ class UserHandler
 		$user->setIsActive(true);
 		$user->setPassword($this->getEncodedPassword($user));
 		$user->setPlainPassword(null);
-		$templates = $this->getEmailTemplates($user, 'change-password');
-		$this->sendMail(array(
-			'subject' => "Réinitialisation de votre mot de passe.",
-			'from'    => $this->config['from'],
-			'to'      => $user->getEmail(),
-			'body'    => $templates['html'],
-			'text'    => $templates['text'],
-		));
+
+		$options      = array(
+			'subject'      => "Réinitialisation de votre mot de passe.",
+			'from'         => $this->config['from'],
+			'to'           => $user->getEmail(),
+			'template'     => 'change-password',
+			'website_name' => $this->config['websiteName'],
+		);
+		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
+		$EmailHandler->sendMail();
 	}
 
-
-	/**
-	 * erreur de changement du mot de passe
-	 *
-	 * @param User $user
-	 */
-	public function changePasswordError(User $user)
-	{
-		$templates = $this->getEmailTemplates($user, 'change-password-error');
-		$this->sendMail(array(
-			'subject' => "Echec de la modification de votre mot de passe.",
-			'from'    => $this->config['from'],
-			'to'      => $user->getEmail(),
-			'body'    => $templates['html'],
-			'text'    => $templates['text'],
-		));
-	}
 
 	/**
 	 * Réussite de la validation du mail
@@ -159,55 +171,40 @@ class UserHandler
 
 	public function changeEmailRequest(User $user)
 	{
-		$newEmail = $user->getEmailTmp();
 		$this->setNewSecurityHash($user);
-		$url       = $this->router->generate('rudakUser_email_change_confirmation', array('hash' => $user->getSecurityHash(),), true);
-		$templates = $this->getEmailTemplates($user, 'change-email-request', $url);
-		$this->sendMail(array(
-			'subject' => 'Demande de changement d\'adresse email',
-			'from'    => $this->config['from'],
-			'to'      => $newEmail,
-			'body'    => $templates['html'],
-			'text'    => $templates['text'],
-		));
+
+		$options = array(
+			'subject'      => 'Changement d\'adresse e-mail',
+			'from'         => $this->config['from'],
+			'to'           => $user->getEmailTmp(),
+			'template'     => 'change-email-request',
+			'website_name' => $this->config['websiteName'],
+			'link'         => $this->router->generate('rudakUser_email_change_confirmation', array('hash' => $user->getSecurityHash()), true),
+		);
+
+		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
+		$EmailHandler->sendMail();
 		$this->updateUser($user);
 	}
 
 	public function changeEmailSuccess(User $user)
 	{
-		$newEmail  = $user->getEmailTmp();
-		$templates = $this->getEmailTemplates($user, 'change-email');
-		$this->sendMail(array(
-			'subject' => 'Changement d\'adresse email réussi',
-			'from'    => $this->config['from'],
-			'to'      => $newEmail,
-			'body'    => $templates['html'],
-			'text'    => $templates['text']
-		));
+		$newEmail     = $user->getEmailTmp();
+		$options      = array(
+			'subject'      => 'Changement d\'adresse email réussi',
+			'from'         => $this->config['from'],
+			'to'           => $newEmail,
+			'template'     => 'change-email',
+			'website_name' => $this->config['websiteName']
+		);
+		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
+		$EmailHandler->sendMail();
+
 		$user->setEmailTmp(null);
 		$user->setEmail($newEmail);
 		$this->eraseSecurityHash($user);
 
 		$this->updateUser($user);
-	}
-
-	public function reinitPasswordRequest(User $user)
-	{
-		$this->setNewSecurityHash($user);
-		$url       = $this->router->generate('rudakUser_reinit_mail_answer', array(
-			'hash' => $user->getSecurityHash()
-		), true);
-		$templates = $this->getEmailTemplates($user, 'link-password-init', $url);
-
-		$this->sendMail(array(
-			'subject' => 'Mot de passe perdu',
-			'from'    => $this->config['from'],
-			'to'      => $user->getEmail(),
-			'body'    => $templates['html'],
-			'text'    => $templates['text'],
-		));
-		$session = new Session();
-		$session->getFlashBag()->add('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
 	}
 
 
@@ -240,30 +237,5 @@ class UserHandler
 	{
 		$this->em->persist($user);
 		$this->em->flush();
-	}
-
-	private function getEmailTemplates(User $user, $template, $link = null)
-	{
-		$date = new \Datetime('NOW');
-		# TODO: basculer ca du coté emailHandler
-		# TODO: voir les dates de validité, je crois que je me suis planté avec NOW...
-		# TODO: envoyer mail apres avoir validé l'adresse post record
-
-
-		return array(
-			'html' => $this->templating->render('RudakUserBundle:Email:' . $template . '.html.twig', array(
-				'user'    => $user,
-				'date'    => $date,
-				'website' => $this->config['websiteName'],
-				'link'    => $link
-			)),
-			'text' => $this->templating->render('RudakUserBundle:Email:' . $template . '.txt.twig', array(
-				'user'    => $user,
-				'website' => $this->config['websiteName'],
-				'link'    => $link,
-				'date'    => $date,
-			))
-		);
-
 	}
 }
