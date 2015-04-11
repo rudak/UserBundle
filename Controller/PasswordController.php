@@ -78,8 +78,7 @@ class PasswordController extends Controller
 		$user = $em->getRepository('RudakUserBundle:User')->checkIfUserExists($data);
 
 		if ($user && $user instanceof User) {
-			# TODO : j'ai viré la config dans le baseEvent, verifier que ca merde nul part
-			$baseEvent   = new BaseEvent($user);
+			$baseEvent = new BaseEvent($user);
 			$this
 				->get('event_dispatcher')
 				->dispatch(UserEvents::USER_PASSWORD_LOST_REQUEST, $baseEvent);

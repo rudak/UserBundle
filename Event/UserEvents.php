@@ -5,6 +5,7 @@ namespace Rudak\UserBundle\Event;
 final class UserEvents
 {
 
+	const CREATE_USER_BY_FIXTURE       = 'rudak_user.fixture.create';
 	const USER_CREATED                 = 'rudak_user.created';
 	const USER_POST_REGISTER           = 'rudak_user.post_register';
 	const USER_EMAIL_VALIDATION        = 'rudak_user.email_validation';

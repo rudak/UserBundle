@@ -5,6 +5,8 @@ namespace Rudak\UserBundle\DataFixtures\ORM;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Rudak\UserBundle\Entity\User;
+use Rudak\UserBundle\Event\BaseEvent;
+use Rudak\UserBundle\Event\UserEvents;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -23,8 +25,6 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface
 	{
 		$this->container = $container;
 	}
-
-	# TODO : creer event create_by_fixture pour chaque user créé
 
 	/**
 	 * {@inheritDoc}
@@ -49,12 +49,21 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface
 				->getEncoder($user[$key]);
 			$user[$key]->setPassword($encoder->encodePassword($userInfos['password'], $user[$key]->getSalt()));
 			$manager->persist($user[$key]);
-
+			$this->setEvent($user[$key]);
 			echo 'Creation user : ' . $userInfos['username'] . " " . $userInfos['password'] . "\n";
 		}
 
 		$manager->flush();
 		echo "\nTERMINE\n" . $barre . "\n";
+	}
+
+
+	private function setEvent(User $user)
+	{
+		$baseEvent = new BaseEvent($user);
+		$this->container
+			->get('event_dispatcher')
+			->dispatch(UserEvents::CREATE_USER_BY_FIXTURE, $baseEvent);
 	}
 
 	private function getUsersToLoad()
