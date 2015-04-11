@@ -1,0 +1,13 @@
+{% extends 'RudakUserBundle:Email:basic.html.twig' %}
+
+{% block emailContent %}
+    <h2>Validation d'adresse e-mail réussie.</h2>
+    <p class="callout">
+        Merci {{ user.username }}. Vous avez validé votre adresse email correctement.
+        <br/>
+        Nous passons désormais en mode silencieux.
+        <br/>
+        A bientot ! L'équipe {{ website }}.
+    </p>
+    <br/>
+{% endblock %}

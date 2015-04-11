@@ -24,6 +24,8 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface
 		$this->container = $container;
 	}
 
+	# TODO : creer event create_by_fixture pour chaque user créé
+
 	/**
 	 * {@inheritDoc}
 	 */

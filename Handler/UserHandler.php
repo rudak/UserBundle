@@ -20,19 +20,19 @@ use Symfony\Component\Templating\EngineInterface;
 class UserHandler
 {
 
-	private   $mailer;
+	private $mailer;
 
-	private   $templating;
+	private $templating;
 
-	private   $em;
+	private $em;
 
-	private   $encoder;
+	private $encoder;
 
-	private   $router;
+	private $router;
 
 	protected $container;
 
-	private   $config;
+	private $config;
 
 	function __construct(Swift_Mailer $mailer, EngineInterface $templating,
 						 EntityManager $entityManager, EncoderFactoryInterface $encoder,
@@ -168,6 +168,17 @@ class UserHandler
 		$this->eraseSecurityHash($user);
 		$user->setIsActive(true);
 		$user->setEmailValidation(new \Datetime('NOW'));
+
+		$options = array(
+			'subject'      => 'Validation d\'adresse e-mail réussie',
+			'from'         => $this->config['from'],
+			'to'           => $user->getEmail(),
+			'template'     => 'email-ok',
+			'website_name' => $this->config['websiteName'],
+		);
+
+		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
+		$EmailHandler->sendMail();
 	}
 
 	public function changeEmailRequest(User $user)

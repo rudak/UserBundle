@@ -51,7 +51,6 @@ class EmailHandler
 	private function getEmailTemplates()
 	{
 		$date = new \Datetime('NOW');
-		# TODO: voir les dates de validité, je crois que je me suis planté avec NOW...
 		# TODO: envoyer mail apres avoir validé l'adresse post record
 
 		return array(
