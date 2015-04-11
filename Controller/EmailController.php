@@ -14,6 +14,7 @@ class EmailController extends Controller
 		$user = $this->getUser();
 		if (null != $user->getSecurityHash()) {
 			// validation en attente
+			# todo : virer ca en cas d'erreur lors de l'email entré
 			$this->addFlash('notice', 'Vous avez déja une confirmation par mail en attente, impossible de changer d\'adresse.');
 			return $this->redirectToRoute('rudakUser_profile');
 		}

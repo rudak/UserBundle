@@ -18,6 +18,7 @@
         .callout{padding:15px;background-color:#ECF8FF;margin-bottom:15px}
         .callout a{font-weight:700;color:#2BA6CB}
         table.body-wrap{width:100%}
+        table.body-wrap td.logo{text-align: center;}
         table.footer-wrap{width:100%;clear:both!important}
         .footer-wrap .container td.content p{border-top:1px solid #d7d7d7;padding-top:15px;font-size:10px;font-weight:700}
         .footer-wrap .container p.ipMessage{color:#CCC;font-size:10px}
@@ -29,6 +30,22 @@
         h4{font-weight:500;font-size:20px}
         h5{font-weight:900;font-size:17px}
         h6{font-weight:900;font-size:14px;text-transform:uppercase;color:#444}
+        hr {
+            padding: 0;
+            border: none;
+            border-top: medium double #333;
+            color: #333;
+            text-align: center;
+        }
+        hr:after {
+            content: "§";
+            display: inline-block;
+            position: relative;
+            top: -0.7em;
+            font-size: 1.5em;
+            padding: 0 0.25em;
+            background: white;
+        }
         .collapse{margin:0!important}
         p,ul{margin-bottom:10px;font-weight:400;font-size:14px;line-height:1.6}
         p.lead{font-size:17px}
@@ -61,15 +78,26 @@
 <table class="body-wrap">
     <tr>
         <td></td>
+        <td class="logo">
+            <img
+                 src="{{ app.request.getSchemeAndHttpHost() ~ asset('bundles/rudakuser/img/email-logo.png') }}"
+                 alt="logo"
+                    align="middle"/>
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
         <td class="container" bgcolor="#FFFFFF">
 
             <div class="content">
                 <table>
                     <tr>
                         <td>
-                            {# TODO : move content of templates for text emails #}
+                            <hr/>
                             {% block emailContent %}
                             {% endblock %}
+                            <hr/>
                         </td>
                     </tr>
                 </table>

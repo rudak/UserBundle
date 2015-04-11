@@ -1,11 +1,10 @@
-Bienvenue {{ user.username }} !
+Vous recevez ce mail suite à une demande de validation de votre adresse mail sur {{ website }}.
 
-Pour valider votre compte vous rendre à cette adresse :
+En suivant ce lien, vous validerez votre adresse mail : {{ link }}
 
-{{ link }}
+Pour rappel, votre nom d'utilisateur est : {{ user.username }}
 
-Merci, à très bientot !
+Merci d'utiliser notre site !
 
 
 {% include 'RudakUserBundle:Email:avertissement.txt.twig' %}
-

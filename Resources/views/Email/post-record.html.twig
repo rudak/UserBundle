@@ -1,17 +1,21 @@
 {% extends 'RudakUserBundle:Email:basic.html.twig' %}
 
 {% block emailContent %}
-    <h2>Bienvenue {{ user.username }} !</h2>
-    <p class="callout">
-        Pour valider votre compte vous devez cliquer sur ce lien :
-        <br/>
-        <a href="{{ link }}">Lien de validation</a>
-        <br/>
-        Merci, a très bientot !
-    </p>
     <p class="lead">
-        Ceci est un message automatique envoyé suite à une requete sur le site
-        <strong>{{ website }}</strong>. Si vous n'êtes pas à l'origine de cette demande,
-        veuillez ignorer cet email, merci.
+        Vous recevez ce mail suite à une demande de validation de votre adresse mail sur {{ website }}.
+    </p>
+    <p class="callout">
+        En suivant ce lien, vous validerez votre adresse mail :
+        <br/>
+        <a href="{{ link }}" title="valider adresse mail">
+            Lien de validation
+        </a>
+    </p>
+    <p>
+        Pour rappel, votre nom d'utilisateur est : <strong>{{ user.username }}</strong>
+    </p>
+
+    <p>
+        Merci d'utiliser notre site !
     </p>
 {% endblock %}
