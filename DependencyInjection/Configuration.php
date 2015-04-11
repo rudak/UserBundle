@@ -31,6 +31,10 @@ class Configuration implements ConfigurationInterface
 						 ->isRequired()
 						 ->cannotBeEmpty()
 					 ->end()
+					->scalarNode('homepage_route')
+						->isRequired()
+						->cannotBeEmpty()
+					->end()
 				 ->end();
 
 		return $treeBuilder;

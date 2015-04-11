@@ -17,15 +17,18 @@ use Symfony\Component\Routing\Router;
 
 class AccessDeniedListener
 {
+
 	protected $_session;
 	protected $_router;
 	protected $_request;
+	protected $config;
 
-	public function __construct(Session $session, Router $router, Request $request)
+	public function __construct(Session $session, Router $router, Request $request, array $config)
 	{
 		$this->_session = $session;
 		$this->_router  = $router;
 		$this->_request = $request;
+		$this->config   = $config;
 	}
 
 	public function onAccessDeniedException(GetResponseForExceptionEvent $event)
@@ -36,15 +39,8 @@ class AccessDeniedListener
 				'notice',
 				'Votre type de compte ne vous permet pas d\'accéder à cette page.'
 			);
-			/*
-			if ($this->_request->headers->get('referer')) {
-				$route = $this->_request->headers->get('referer');
-			} else {
-				$route = $this->_router->generate('homepage');
-			}
-			*/
-
-			$event->setResponse(new RedirectResponse($this->_router->generate('homepage')));
+			$homepage_route = $this->config['homepage_route'];
+			$event->setResponse(new RedirectResponse($this->_router->generate($homepage_route)));
 		}
 	}
 }

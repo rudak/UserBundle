@@ -54,7 +54,7 @@ class UserHandler
 			'to'           => $user->getEmail(),
 			'template'     => 'user-created',
 			'website_name' => $this->config['websiteName'],
-			'link'         => $this->router->generate('homepage', array(), true),
+			'link'         => $this->router->generate($this->config['homepage_route'], array(), true),
 		);
 		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
 		$EmailHandler->sendMail();

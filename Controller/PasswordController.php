@@ -28,7 +28,7 @@ class PasswordController extends Controller
 		if (!$this->getUser()) {
 			$this->addFlash('notice', 'Vous devez etre loggé pour modifier votre mot de passe.');
 
-			return $this->redirectToRoute('homepage');
+			return $this->redirectToRoute($this->getHomepageRoute());
 		}
 		$changePassword = new ChangePassword();
 		$form           = $this->createForm(new ChangePasswordType(), $changePassword, array(
@@ -90,7 +90,7 @@ class PasswordController extends Controller
 			$this->addFlash('notice', 'Le nom d’utilisateur que vous avez entré ne correspond pas au nom enregistré sur nos serveurs pour votre compte.');
 		}
 
-		return $this->redirectToRoute('homepage');
+		return $this->redirectToRoute($this->getHomepageRoute());
 	}
 
 	/**
@@ -107,7 +107,7 @@ class PasswordController extends Controller
 		if (!$user) {
 			$this->addFlash('notice', 'Impossible de trouver une correspondance avec cette clé de réinitialisation.');
 
-			return $this->redirectToRoute('homepage');
+			return $this->redirectToRoute($this->getHomepageRoute());
 		}
 
 		if (new \Datetime('NOW') > $user->getSecurityHashExpireAt()) {
@@ -139,7 +139,7 @@ class PasswordController extends Controller
 				$this->autoLogin($user, $request);
 			}
 
-			return $this->redirectToRoute('homepage');
+			return $this->redirectToRoute($this->getHomepageRoute());
 		}
 
 		return $this->render('RudakUserBundle:Password:init-form.html.twig', array(
@@ -192,5 +192,12 @@ class PasswordController extends Controller
 		//maintenant il faut dispatch l'event du login 'classique'
 		$event = new InteractiveLoginEvent($request, $token);
 		$this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
+	}
+
+
+	private function getHomepageRoute()
+	{
+		$config = $this->container->getParameter('rudak.user.config');
+		return $config['homepage_route'];
 	}
 }

@@ -62,7 +62,7 @@ class RecordController extends Controller
 					vient de vous etre envoyé, veuillez cliquer sur le lien de validation pour confirmer
 					votre adresse mail et valider l\'inscription.Merci beaucoup. ');
 
-					return $this->redirectToRoute('homepage');
+					return $this->redirectToRoute($this->getHomepageRoute());
 				} else {
 					$this->addFlash(
 						'notice',
@@ -139,6 +139,12 @@ class RecordController extends Controller
 			'Email de l\'utilisateur ' . $User->getUsername() . ' validée.'
 		);
 
-		return $this->redirectToRoute('homepage');
+		return $this->redirectToRoute($this->getHomepageRoute());
+	}
+
+	private function getHomepageRoute()
+	{
+		$config = $this->container->getParameter('rudak.user.config');
+		return $config['homepage_route'];
 	}
 }

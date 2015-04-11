@@ -15,7 +15,6 @@ class EmailController extends Controller
 		$user = $this->getUser();
 		if (null != $user->getSecurityHash()) {
 			// validation en attente
-			# todo : virer ca en cas d'erreur lors de l'email entré
 			$this->addFlash('notice', 'Suppression de la precedente confirmation par mail en attente.');
 			$user->setSecurityHash(null);
 			$user->setSecurityHashExpireAt(null);
@@ -39,8 +38,8 @@ class EmailController extends Controller
 			$this
 				->get('event_dispatcher')
 				->dispatch(UserEvents::USER_EMAIL_CHANGE_REQUEST, $BaseEvent);
-			#todo passer route homepage en config
-			return $this->redirectToRoute('homepage');
+
+			return $this->redirectToRoute($this->getHomepageRoute());
 		}
 
 		return $this->render('RudakUserBundle:Default:change-email.html.twig', array(
@@ -48,7 +47,7 @@ class EmailController extends Controller
 		));
 	}
 
-	public function confirmationEmailAction(Request $request, $hash)
+	public function confirmationEmailAction($hash)
 	{
 		$em   = $this->getDoctrine()->getManager();
 		$repo = $em->getRepository('RudakUserBundle:User');
@@ -59,14 +58,14 @@ class EmailController extends Controller
 			if (!$user) {
 				$this->addFlash('notice', 'Ce lien de validation ne correspond a rien.');
 
-				return $this->redirectToRoute('homepage');
+				return $this->redirectToRoute($this->getHomepageRoute());
 			}
 		}
 		if ($user->getSecurityHashExpireAt() < new \Datetime('NOW')) {
 			// expiré
 			$this->addFlash('notice', 'Ce lien de validation est inconnu ou expiré.');
 
-			return $this->redirectToRoute('homepage');
+			return $this->redirectToRoute($this->getHomepageRoute());
 		}
 		$BaseEvent = new BaseEvent($user);
 		$this
@@ -74,7 +73,7 @@ class EmailController extends Controller
 			->dispatch(UserEvents::USER_EMAIL_CHANGE_SUCCESS, $BaseEvent);
 		$this->addFlash('notice', 'Adresse email modifiée avec succès.');
 
-		return $this->redirectToRoute('homepage');
+		return $this->redirectToRoute($this->getHomepageRoute());
 	}
 
 	private function getForm($values, $options)
@@ -90,6 +89,11 @@ class EmailController extends Controller
 						)
 					))
 					->getForm();
+	}
 
+	private function getHomepageRoute()
+	{
+		$config = $this->container->getParameter('rudak.user.config');
+		return $config['homepage_route'];
 	}
 }

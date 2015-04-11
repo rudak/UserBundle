@@ -11,7 +11,7 @@ services:
     rudak_user.listener.accessDenied:
         class: %kernel.listener.atd.access_denied.class%
         scope: request
-        arguments: [@session, @router, @request]
+        arguments: [@session, @router, @request, %rudak.user.config%]
         tags:
             - { name: kernel.event_listener, event: kernel.exception, method: onAccessDeniedException }
 
