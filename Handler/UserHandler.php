@@ -11,6 +11,7 @@ namespace Rudak\UserBundle\Handler;
 
 use Doctrine\ORM\EntityManager;
 use Rudak\UserBundle\Entity\User;
+use Swift_Mailer;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
@@ -33,7 +34,7 @@ class UserHandler
 
 	private   $config;
 
-	function __construct(\Swift_Mailer $mailer, EngineInterface $templating,
+	function __construct(Swift_Mailer $mailer, EngineInterface $templating,
 						 EntityManager $entityManager, EncoderFactoryInterface $encoder,
 						 Router $router, $config)
 	{
