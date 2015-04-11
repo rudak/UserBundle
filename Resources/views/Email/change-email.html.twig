@@ -1,9 +1,10 @@
 {% extends 'RudakUserBundle:Email:basic.html.twig' %}
 
 {% block emailContent %}
-    <h2>Merci {{ user.username }}</h2>
+    <h2>Changement d'adresse e-mail réussi.</h2>
     <p class="callout">
-        Nous avons bien pris en compte votre changement d'adresse à {{ date|date('H:i:s \\l\\e d/m/Y') }} et
-        l'ancienne ({{ user.email }}) a été supprimée des bases de données de <strong>{{ website }}</strong>.
+        Merci {{ user.username }}. Nous avons bien pris en compte votre changement d'adresse et
+        l'ancienne ({{ user.email }}) a été supprimée des bases de données de {{ website }}.
     </p>
+    <br/>
 {% endblock %}

@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 class PasswordController extends Controller
 {
 
-	public function lostAction()
+	public function  lostAction()
 	{
 		return $this->render('RudakUserBundle:Password:lost.html.twig');
 	}

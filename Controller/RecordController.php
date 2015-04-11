@@ -49,6 +49,9 @@ class RecordController extends Controller
 					$BaseEvent = new BaseEvent($User);
 					$this
 						->get('event_dispatcher')
+						->dispatch(UserEvents::USER_CREATED, $BaseEvent);
+					$this
+						->get('event_dispatcher')
 						->dispatch(UserEvents::USER_RECORD, $BaseEvent);
 
 					$em = $this->getDoctrine()->getManager();
@@ -63,7 +66,7 @@ class RecordController extends Controller
 				} else {
 					$this->addFlash(
 						'notice',
-						'Utilisateur possedant le meme pseudo ou mot de passe existe deja dans la base'
+						'Utilisateur possedant le meme pseudo ou adresse email existe deja dans la base'
 					);
 				}
 			} else {

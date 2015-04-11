@@ -21,6 +21,10 @@ class PostRecordListener
 		$this->userHandler = $userHandler;
 	}
 
+	public function createUser(BaseEvent $event)
+	{
+		$this->userHandler->userCreated($event->getUser());
+	}
 
 	public function updateUser(BaseEvent $event)
 	{

@@ -5,6 +5,8 @@ namespace Rudak\UserBundle\Event;
 final class UserEvents
 {
 
+	const USER_CREATED                 = 'rudak_user.created';
+	# TODO passer en post record
 	const USER_RECORD                  = 'rudak_user.record';
 	const USER_EMAIL_VALIDATION        = 'rudak_user.email_validation';
 	const USER_PASSWORD_RECOVERED      = 'rudak_user.password_recovery.success';

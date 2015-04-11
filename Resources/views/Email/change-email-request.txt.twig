@@ -1,7 +1,14 @@
 Changement d'adresse e-mail
 
-Chez {{ website }}, votre adresse email était jusqu'ici {{ user.email }} et vous la remplacez par {{ user.emailTmp }}.
+Vous recevez ce mail suite à une demande de validation de votre adresse mail sur {{ website }}. Votre adresse email était jusqu'ici '{{ user.email }}' et vous la remplacez par '{{ user.emailTmp }}'.
 
-Pour valider cette adresse, vous devez cliquer sur le lien ci dessous. Attention vous avez jusqu'au {{ user.securityHashExpireAt|date('d/m/Y \\à H:i:s') }} pour effectuer cette action.
+Pour valider cette adresse, vous devez vous rendre sur cette page avant {{ user.securityHashExpireAt|date('H:i') }}
 
 {{ link }}
+
+
+
+
+Pour rappel, votre nom d'utilisateur est : {{ user.username }}
+
+Merci d'utiliser notre site ! L'équipe {{ website }}

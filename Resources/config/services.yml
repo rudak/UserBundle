@@ -23,18 +23,28 @@ services:
         class: Rudak\UserBundle\Handler\UserHandler
         arguments: [@mailer,@templating,@doctrine.orm.entity_manager,@security.encoder_factory,@router, %rudak.user.config%]
 
+    # UserHandler
     rudak.user.listener.post.record:
         class: Rudak\UserBundle\Listener\PostRecordListener
         arguments: [@rudak_user.handler.user]
         tags:
             - { name: kernel.event_listener, event: rudak_user.record, method: updateUser }
 
+    # Utilisateur créé
+    rudak.user.listener.user.created:
+        class: Rudak\UserBundle\Listener\PostRecordListener
+        arguments: [@rudak_user.handler.user]
+        tags:
+            - { name: kernel.event_listener, event: rudak_user.created, method: createUser }
+
+    # Email utilisateur validée
     rudak.user.listener.email.validation:
         class: Rudak\UserBundle\Listener\EmailValidationListener
         arguments: [@rudak_user.handler.user]
         tags:
             - { name: kernel.event_listener, event: rudak_user.email_validation, method: validationSuccess }
-    # Reinitialisation du mot de passe réussi
+
+    # Reinitialisation du mot de passe requete
     rudak.user.listener.lost_password_request:
         class: Rudak\UserBundle\Listener\ChangePasswordListener
         arguments: [@rudak_user.handler.user]

@@ -45,6 +45,34 @@ class UserHandler
 		$this->config     = $config;
 	}
 
+	public function userCreated(User $user)
+	{
+		$url       = $this->router->generate('homepage', array(), true);
+		$templates = $this->getEmailTemplates($user, 'user-created', $url);
+		$this->sendMail(array(
+			'subject' => 'Votre compte utilisateur sur ' . $this->config['websiteName'] . ' !',
+			'from'    => $this->config['from'],
+			'to'      => $user->getEmail(),
+			'body'    => $templates['html'],
+			'text'    => $templates['text'],
+		));
+	}
+
+	public function postCreate(User $user)
+	{
+		$this->setNewSecurityHash($user);
+		$url       = $this->router->generate('record_validing_email', array('hash' => $user->getSecurityHash()), true);
+		$templates = $this->getEmailTemplates($user, 'post-record', $url);
+		$this->sendMail(array(
+			'subject' => 'Validation ',
+			'from'    => $this->config['from'],
+			'to'      => $user->getEmail(),
+			'body'    => $templates['html'],
+			'text'    => $templates['text'],
+		));
+		$this->updateUser($user);
+	}
+
 	/**
 	 * Méthode appelée quand on change de mot de passe
 	 *
@@ -73,7 +101,7 @@ class UserHandler
 	 */
 	private function sendMail(array $options)
 	{
-		$EmailHandler = new EmailHandler($this->mailer,$this->templating);
+		$EmailHandler = new EmailHandler($this->mailer, $this->templating);
 		$EmailHandler->sendMail($options);
 	}
 
@@ -100,6 +128,11 @@ class UserHandler
 	}
 
 
+	/**
+	 * erreur de changement du mot de passe
+	 *
+	 * @param User $user
+	 */
 	public function changePasswordError(User $user)
 	{
 		$templates = $this->getEmailTemplates($user, 'change-password-error');
@@ -112,6 +145,11 @@ class UserHandler
 		));
 	}
 
+	/**
+	 * Réussite de la validation du mail
+	 *
+	 * @param User $user
+	 */
 	public function emailValidationSuccess(User $user)
 	{
 		$this->eraseSecurityHash($user);
@@ -140,7 +178,7 @@ class UserHandler
 		$newEmail  = $user->getEmailTmp();
 		$templates = $this->getEmailTemplates($user, 'change-email');
 		$this->sendMail(array(
-			'subject' => 'Changement d\'adresse email effectuée',
+			'subject' => 'Changement d\'adresse email réussi',
 			'from'    => $this->config['from'],
 			'to'      => $newEmail,
 			'body'    => $templates['html'],
@@ -172,20 +210,6 @@ class UserHandler
 		$session->getFlashBag()->add('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
 	}
 
-	public function postCreate(User $user)
-	{
-		$this->setNewSecurityHash($user);
-		$url       = $this->router->generate('record_validing_email', array('hash' => $user->getSecurityHash()), true);
-		$templates = $this->getEmailTemplates($user, 'post-record', $url);
-		$this->sendMail(array(
-			'subject' => 'Création de compte',
-			'from'    => $this->config['from'],
-			'to'      => $user->getEmail(),
-			'body'    => $templates['html'],
-			'text'    => $templates['text'],
-		));
-		$this->updateUser($user);
-	}
 
 	private function setNewSecurityHash(User $user)
 	{
@@ -223,6 +247,8 @@ class UserHandler
 		$date = new \Datetime('NOW');
 		# TODO: basculer ca du coté emailHandler
 		# TODO: voir les dates de validité, je crois que je me suis planté avec NOW...
+		# TODO: envoyer mail apres avoir validé l'adresse post record
+
 
 		return array(
 			'html' => $this->templating->render('RudakUserBundle:Email:' . $template . '.html.twig', array(

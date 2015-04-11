@@ -2,16 +2,19 @@
 
 {% block emailContent %}
     <h2>Changement d'adresse e-mail</h2>
-    <p class="lead">
-        Chez <strong>{{ website }}</strong>, votre adresse email était jusqu'ici <strong>{{ user.email }}</strong>
-        et vous la remplacez par <strong>{{ user.emailTmp }}</strong>.
+    <p class="">
+        Vous recevez ce mail suite à une demande de validation de votre adresse mail sur {{ website }}.
+        Votre adresse email était jusqu'ici '{{ user.email }}' et vous la remplacez par '{{ user.emailTmp }}'.
     </p>
     <p class="callout">
-        Pour valider cette adresse, vous devez cliquer sur le lien ci dessous. Attention vous avez
-        jusqu'au {{ user.securityHashExpireAt|date('d/m/Y \\à H:i:s') }} pour effectuer cette action.
+        En suivant ce lien, vous validerez votre nouvelle adresse mail :
         <br/>
         <a href="{{ link }}">
-            Lien de validation de l'adresse email
+            - Lien de validation de l'adresse email -
         </a>
     </p>
+    <p>
+        Attention vous avez jusqu'a {{ user.securityHashExpireAt|date('H:i') }} pour valider ce changement.
+    </p>
+    <br/>
 {% endblock %}

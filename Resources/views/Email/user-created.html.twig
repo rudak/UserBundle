@@ -1,0 +1,16 @@
+{% extends 'RudakUserBundle:Email:basic.html.twig' %}
+
+{% block emailContent %}
+    <p class="lead">
+        Vous recevez cet e-mail car vous venez de créer un compte sur {{ website }} avec l'adresse {{ user.email }}.
+    </p>
+    <p class="callout">
+        Vous pouvez vous connecter sur {{ website }} en utilisant votre pseudonyme "<strong>{{ user.username }}</strong>"
+        ou votre adresse e-mail "<strong>{{ user.email }}</strong>".
+    </p>
+    <p>
+        Merci d'utiliser notre site !<br/>
+        A bientôt,<br/>
+        L'équipe {{ website }} - {{ link }}
+    </p>
+{% endblock %}
