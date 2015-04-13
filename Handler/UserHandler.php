@@ -20,18 +20,12 @@ use Symfony\Component\Templating\EngineInterface;
 class UserHandler
 {
 
-	private $mailer;
-
-	private $templating;
-
-	private $em;
-
-	private $encoder;
-
-	private $router;
-
 	protected $container;
-
+	private $mailer;
+	private $templating;
+	private $em;
+	private $encoder;
+	private $router;
 	private $config;
 
 	function __construct(Swift_Mailer $mailer, EngineInterface $templating,
@@ -76,6 +70,18 @@ class UserHandler
 		$this->updateUser($user);
 	}
 
+	private function setNewSecurityHash(User $user)
+	{
+		$user->setSecurityHash(sha1(md5(uniqid(null, true))));
+		$user->setSecurityHashExpireAt(new \Datetime('+1 hour'));
+	}
+
+	private function updateUser(User $user)
+	{
+		$this->em->persist($user);
+		$this->em->flush();
+	}
+
 	/**
 	 * Méthode appelée quand on change de mot de passe
 	 *
@@ -94,6 +100,19 @@ class UserHandler
 		$EmailHandler = new EmailHandler($this->mailer, $this->templating, $user, $options);
 		$EmailHandler->sendMail();
 		$this->updateUser($user);
+	}
+
+	/**
+	 * Retourne le mot de passe encodé
+	 *
+	 * @param $user
+	 * @return string
+	 */
+	private function getEncodedPassword(User $user)
+	{
+		$encoder = $this->encoder->getEncoder($user);
+
+		return $encoder->encodePassword($user->getPlainPassword(), $user->getSalt());
 	}
 
 	/**
@@ -132,7 +151,6 @@ class UserHandler
 		$session->getFlashBag()->add('notice', 'Email de récupération envoyé, vous disposez d\'une heure pour changer votre mot de passe.');
 	}
 
-
 	/**
 	 * Intervient lors du success de la réinitialisation du mot de passe
 	 *
@@ -157,6 +175,11 @@ class UserHandler
 		$EmailHandler->sendMail();
 	}
 
+	private function eraseSecurityHash(User $user)
+	{
+		$user->setSecurityHash(null);
+		$user->setSecurityHashExpireAt(null);
+	}
 
 	/**
 	 * Réussite de la validation du mail
@@ -217,37 +240,5 @@ class UserHandler
 		$this->eraseSecurityHash($user);
 
 		$this->updateUser($user);
-	}
-
-
-	private function setNewSecurityHash(User $user)
-	{
-		$user->setSecurityHash(sha1(md5(uniqid(null, true))));
-		$user->setSecurityHashExpireAt(new \Datetime('+1 hour'));
-	}
-
-	private function eraseSecurityHash(User $user)
-	{
-		$user->setSecurityHash(null);
-		$user->setSecurityHashExpireAt(null);
-	}
-
-	/**
-	 * Retourne le mot de passe encodé
-	 *
-	 * @param $user
-	 * @return string
-	 */
-	private function getEncodedPassword(User $user)
-	{
-		$encoder = $this->encoder->getEncoder($user);
-
-		return $encoder->encodePassword($user->getPlainPassword(), $user->getSalt());
-	}
-
-	private function updateUser(User $user)
-	{
-		$this->em->persist($user);
-		$this->em->flush();
 	}
 }
