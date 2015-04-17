@@ -64,10 +64,9 @@ userbundle de fainéant pour les projets a la con (dont use it)
 ## Lignes de commandes:
 ####creer un utilisateur
 
-rudakuser:create
+    rudakuser:create
     
-Exemple :
-    php app/console rudakuser:create --admin --blocked francky
+Exemple : ``` php app/console rudakuser:create --admin --blocked francky ```    
 Cette commande creera un utilisateur nommé franky, il sera admin, mais pas de bol, il sera bloqué dès la naissance !
 ####Donner des droits a un utilisateur
     rudakuser:promote
