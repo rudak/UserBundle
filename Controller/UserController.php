@@ -35,6 +35,7 @@ class UserController extends Controller
 	 */
 	public function createAction(Request $request)
 	{
+		$this->checkAuthenticationMode();
 		$entity = new User();
 		$form   = $this->createCreateForm($entity);
 		$form->handleRequest($request);
@@ -57,7 +58,7 @@ class UserController extends Controller
 
 		return $this->render('RudakUserBundle:User:new.html.twig', array(
 			'entity' => $entity,
-			'form' => $form->createView(),
+			'form'   => $form->createView(),
 		));
 	}
 
@@ -77,7 +78,7 @@ class UserController extends Controller
 
 		$form->add('submit', 'submit', array(
 			'label' => 'Créer',
-			'attr' => array(
+			'attr'  => array(
 				'class' => 'btn btn-success'
 			)
 		));
@@ -91,12 +92,13 @@ class UserController extends Controller
 	 */
 	public function newAction()
 	{
+		$this->checkAuthenticationMode();
 		$entity = new User();
 		$form   = $this->createCreateForm($entity);
 
 		return $this->render('RudakUserBundle:User:new.html.twig', array(
 			'entity' => $entity,
-			'form' => $form->createView(),
+			'form'   => $form->createView(),
 		));
 	}
 
@@ -106,6 +108,7 @@ class UserController extends Controller
 	 */
 	public function showAction($id)
 	{
+		$this->checkAuthenticationMode();
 		$em = $this->getDoctrine()->getManager();
 
 		$entity = $em->getRepository('RudakUserBundle:User')->find($id);
@@ -117,7 +120,7 @@ class UserController extends Controller
 		$deleteForm = $this->createDeleteForm($id);
 
 		return $this->render('RudakUserBundle:User:show.html.twig', array(
-			'entity' => $entity,
+			'entity'      => $entity,
 			'delete_form' => $deleteForm->createView(),
 		));
 	}
@@ -128,6 +131,7 @@ class UserController extends Controller
 	 */
 	public function editAction($id)
 	{
+		$this->checkAuthenticationMode();
 		$em = $this->getDoctrine()->getManager();
 
 		$entity = $em->getRepository('RudakUserBundle:User')->find($id);
@@ -140,8 +144,8 @@ class UserController extends Controller
 		$deleteForm = $this->createDeleteForm($id);
 
 		return $this->render('RudakUserBundle:User:edit.html.twig', array(
-			'entity' => $entity,
-			'edit_form' => $editForm->createView(),
+			'entity'      => $entity,
+			'edit_form'   => $editForm->createView(),
 			'delete_form' => $deleteForm->createView(),
 		));
 	}
@@ -162,7 +166,7 @@ class UserController extends Controller
 
 		$form->add('submit', 'submit', array(
 			'label' => 'Modifier',
-			'attr' => array(
+			'attr'  => array(
 				'class' => 'btn btn-success'
 			)
 		));
@@ -176,6 +180,7 @@ class UserController extends Controller
 	 */
 	public function updateAction(Request $request, $id)
 	{
+		$this->checkAuthenticationMode();
 		$em = $this->getDoctrine()->getManager();
 
 		$entity = $em->getRepository('RudakUserBundle:User')->find($id);
@@ -195,8 +200,8 @@ class UserController extends Controller
 		}
 
 		return $this->render('RudakUserBundle:User:edit.html.twig', array(
-			'entity' => $entity,
-			'edit_form' => $editForm->createView(),
+			'entity'      => $entity,
+			'edit_form'   => $editForm->createView(),
 			'delete_form' => $deleteForm->createView(),
 		));
 	}
@@ -207,6 +212,7 @@ class UserController extends Controller
 	 */
 	public function deleteAction(Request $request, $id)
 	{
+		$this->checkAuthenticationMode();
 		$form = $this->createDeleteForm($id);
 		$form->handleRequest($request);
 
@@ -239,7 +245,7 @@ class UserController extends Controller
 					->setMethod('DELETE')
 					->add('submit', 'submit', array(
 						'label' => 'Supprimer',
-						'attr' => array(
+						'attr'  => array(
 							'class' => 'btn btn-danger'
 						)
 					))
@@ -253,5 +259,12 @@ class UserController extends Controller
 			->getEncoder($user);
 		return $encoder->encodePassword($user->getPassword(), $user->getSalt());
 
+	}
+
+	private function checkAuthenticationMode()
+	{
+		if (false === $this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
+			throw new AccessDeniedException();
+		}
 	}
 }

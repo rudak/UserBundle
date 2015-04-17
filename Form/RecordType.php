@@ -8,14 +8,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RecordType extends AbstractType
 {
+
 	/**
 	 * @param FormBuilderInterface $builder
-	 * @param array $options
+	 * @param array                $options
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options)
 	{
 		$builder
-			->add('username')
+			->add('username', 'text', array(
+				'label' => 'Utilisateur'
+			))
 			->add('password', 'repeated', [
 				'type'            => 'password',
 				'invalid_message' => 'Les mots de passe doivent correspondre',
