@@ -81,11 +81,11 @@ Exemple d'options se trouvant dans le fichier app/config/config.yml
         homepage_route: homepage
 
 
-* ```autologin_before_reinit:``` : False par défaut
+* ```autologin_before_reinit:``` : **False** par défaut.    
 Cet argument enclanche l'authentification automatique après la réinitialisation du mot de passe, dans le cas contraire, l'utilisateur doit se connecter avec son pseudo et son mot de passe fraichement modifié.
-* ```from:``` : Obligatoire, aucune valeur par défaut.
+* ```from:``` : Obligatoire, aucune valeur par défaut.   
 Cette option sert a configurer l'expéditeur mentionné lors des envois d'emails (inscription, réinitialisations password etc...)
-* ```websiteName:``` : Obligatoire, aucune valeur par défaut.
+* ```websiteName:``` : Obligatoire, aucune valeur par défaut.   
 C'est le nom du site, qui sera lui aussi mentionné dans les emails de correspondance.
-* ```homepage_route:``` : Obligatoire, aucune valeur par défaut.
+* ```homepage_route:``` : Obligatoire, aucune valeur par défaut.   
 C'est la route par défaut utilisée pour retourner a la page d'accueil de votre site.
