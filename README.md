@@ -61,8 +61,26 @@ userbundle de fainéant pour les projets a la con (dont use it)
         websiteName: youporn.com
         homepage_route: homepage
         
+## Importation des blocks
+
+Pour importer la partie membre dans une **template twig** :
+    
+    {% render(controller('RudakUserBundle:Include:userArea')) %}
+    
+Pour inclure le formulaire de login :
+
+    {% render(controller('RudakUserBundle:Form:getFormLogin')) %}
+## Administration
+
+Toute la partie administration est prefixée par default par 'admin'. Il s'agit d'un **crud** traditionnel,
+création, consultation, mise a jour, et suppression d'utilisateurs.    
+On ne peut pas modifier le mot de passe utilisateur depuis l'administration, le processus étant assez simple, personne ne 
+devrait avoir de mal à changer ses infos privées de manière ... privée.   
+J'ai utilisé une base de Bootstrap pour l'admin, c'est propre sans etre foufou non plus, ca peut s'améliorer mais a la base, 
+j'ai pas besoin d'une administration super branchée donc voila...
+
 # Lignes de commandes:
-###creer un utilisateur
+###Creer un utilisateur
 
     rudakuser:create [--admin] [--superadmin] [--blocked] [username]
     
@@ -93,7 +111,7 @@ En passant l'option ```--delete``` Les informations qui concernent ces hashs son
 
 # Options:
 
-Exemple d'options se trouvant dans le fichier app/config/config.yml
+Exemple d'options se trouvant dans le fichier ```app/config/config.yml```
 
     rudak_user:
         autologin_before_reinit: false
@@ -101,7 +119,7 @@ Exemple d'options se trouvant dans le fichier app/config/config.yml
         websiteName: youporn.com
         homepage_route: homepage
 
-### Détails
+### Détails des options
 * ```autologin_before_reinit:``` : **False** par défaut.    
 Cet argument enclenche l'authentification automatique après la réinitialisation du mot de passe, dans le cas contraire, l'utilisateur doit se connecter avec son pseudo et son mot de passe fraichement modifié.
 * ```from:``` : **Obligatoire**, aucune valeur par défaut.   
