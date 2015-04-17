@@ -72,8 +72,9 @@ Pour inclure le formulaire de login :
     {% render(controller('RudakUserBundle:Form:getFormLogin')) %}
 ## Administration
 
-Toute la partie administration est prefixée par default par ```admin/user``` (par exemple : ```http://localhost.com/admin/user```). Il s'agit d'un **crud** traditionnel,
-création, consultation, mise a jour, et suppression d'utilisateurs.    
+Toute la partie administration est prefixée par default par ```admin/user```    
+(par exemple : ```http://localhost.com/admin/user```)    
+Il s'agit d'un **crud** traditionnel,création, consultation, mise a jour, et suppression d'utilisateurs.    
 On ne peut pas modifier le mot de passe utilisateur depuis l'administration, le processus étant assez simple, personne ne 
 devrait avoir de mal à changer ses infos privées de manière ... privée.   
 J'ai utilisé une base de Bootstrap pour l'admin, c'est propre sans etre foufou non plus, ca peut s'améliorer mais a la base, 
