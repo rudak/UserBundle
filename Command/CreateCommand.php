@@ -18,29 +18,30 @@ class CreateCommand extends ContainerAwareCommand
 		$this
 			->setName('rudakuser:create')
 			->setDescription('Creer un utilisateur.')
-			->addArgument('username', InputArgument::OPTIONAL, 'Qui voulez vous saluer??')
+			->addArgument('username', InputArgument::OPTIONAL, 'Qui voulez vous creer ??')
 			->addOption(
 				'--admin',
 				null,
 				InputOption::VALUE_NONE,
-				'Si défini, cet utilisateur sera admin'
+				'Si defini, cet utilisateur sera admin'
 			)
 			->addOption(
 				'--superadmin',
 				null,
 				InputOption::VALUE_NONE,
-				'Si défini, cet utilisateur sera super_admin'
+				'Si defini, cet utilisateur sera super_admin'
 			)
 			->addOption(
 				'--blocked',
 				null,
 				InputOption::VALUE_NONE,
-				'Si défini, cet utilisateur sera blocked'
+				'Si defini, cet utilisateur sera blocked'
 			);
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		#TODO : check if user already exist
 		$user     = new User();
 		$username = $input->getArgument('username');
 		$user->setUsername($username);

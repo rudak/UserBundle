@@ -63,7 +63,12 @@ userbundle de fainéant pour les projets a la con (dont use it)
         
 ## Lignes de commandes:
 ####creer un utilisateur
-    rudakuser:create
+
+rudakuser:create
+    
+Exemple :
+    php app/console rudakuser:create --admin --blocked francky
+Cette commande creera un utilisateur nommé franky, il sera admin, mais pas de bol, il sera bloqué dès la naissance !
 ####Donner des droits a un utilisateur
     rudakuser:promote
 ####Retirer les droits a un utilisateur
@@ -80,12 +85,12 @@ Exemple d'options se trouvant dans le fichier app/config/config.yml
         websiteName: youporn.com
         homepage_route: homepage
 
-
+### Détails
 * ```autologin_before_reinit:``` : **False** par défaut.    
-Cet argument enclanche l'authentification automatique après la réinitialisation du mot de passe, dans le cas contraire, l'utilisateur doit se connecter avec son pseudo et son mot de passe fraichement modifié.
-* ```from:``` : Obligatoire, aucune valeur par défaut.   
+Cet argument enclenche l'authentification automatique après la réinitialisation du mot de passe, dans le cas contraire, l'utilisateur doit se connecter avec son pseudo et son mot de passe fraichement modifié.
+* ```from:``` : **Obligatoire**, aucune valeur par défaut.   
 Cette option sert a configurer l'expéditeur mentionné lors des envois d'emails (inscription, réinitialisations password etc...)
-* ```websiteName:``` : Obligatoire, aucune valeur par défaut.   
+* ```websiteName:``` : **Obligatoire**, aucune valeur par défaut.   
 C'est le nom du site, qui sera lui aussi mentionné dans les emails de correspondance.
-* ```homepage_route:``` : Obligatoire, aucune valeur par défaut.   
-C'est la route par défaut utilisée pour retourner a la page d'accueil de votre site.
+* ```homepage_route:``` : **Obligatoire**, aucune valeur par défaut.   
+C'est la route par défaut utilisée pour retourner à la page d'accueil de votre site.
