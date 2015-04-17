@@ -61,20 +61,35 @@ userbundle de fainéant pour les projets a la con (dont use it)
         websiteName: youporn.com
         homepage_route: homepage
         
-## Lignes de commandes:
-####creer un utilisateur
+# Lignes de commandes:
+###creer un utilisateur
 
-    rudakuser:create
+    rudakuser:create [--admin] [--superadmin] [--blocked] [username]
     
-Exemple : ``` php app/console rudakuser:create --admin --blocked francky ```    
+**Exemple :** ``` php app/console rudakuser:create --admin --blocked francky ```    
 Cette commande creera un utilisateur nommé franky, il sera admin, mais pas de bol, il sera bloqué dès la naissance !
-####Donner des droits a un utilisateur
-    rudakuser:promote
-####Retirer les droits a un utilisateur
-    rudakuser:demote
-####Verifier les hashs de securité expirés
-    rudakuser:securitycheck
-## Options:
+
+###Donner des droits a un utilisateur
+    
+    rudakuser:promote [--moderator] [--admin] [--superadmin] [username]
+**Exemple :** ``` php app/console rudakuser:promote --admin francky ```    
+Cette commande donera le role **ROLE_ADMIN** à l' utilisateur nommé franky !
+
+###Retirer les droits a un utilisateur
+
+    rudakuser:demote [username]
+    
+**Exemple :** ``` php app/console rudakuser:demote francky ```    
+Cette commande retire tous les roles de l'utilisateur (sauf le role user, qui fait partie des murs de Symfony ^^).
+
+###Verifier les hashs de securité expirés
+    
+    rudakuser:securitycheck [--delete]    
+    
+**Exemple :** ``` php app/console rudakuser:securitycheck ```    
+Cette commande vire tous les hashs expirés. Ces hashs sont créés lors des demandes de réinitialisation de mot de passe et autres. Cette commande ne sert pas a grand chose finalement, mais bon.
+
+# Options:
 
 Exemple d'options se trouvant dans le fichier app/config/config.yml
 
