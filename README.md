@@ -87,7 +87,8 @@ Cette commande retire tous les roles de l'utilisateur (sauf le role user, qui fa
     rudakuser:securitycheck [--delete]    
     
 **Exemple :** ``` php app/console rudakuser:securitycheck ```    
-Cette commande vire tous les hashs expirés. Ces hashs sont créés lors des demandes de réinitialisation de mot de passe et autres. Cette commande ne sert pas a grand chose finalement, mais bon.
+Cette commande renvoie tous les utilisateurs qui contiennent des hashs expirés. En passant l'option ```--delete``` Les informations qui concernent ces hashs sont supprimées.
+*Ces hashs sont créés lors des demandes de réinitialisation de mot de passe et autres. On peut se passer de cette commande, mais elle existe...*
 
 # Options:
 

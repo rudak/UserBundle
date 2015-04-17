@@ -23,19 +23,19 @@ class PromoteCommand extends ContainerAwareCommand
 				'--moderator',
 				null,
 				InputOption::VALUE_NONE,
-				'Si défini, cet utilisateur sera moderateur.'
+				'Si defini, cet utilisateur sera moderateur.'
 			)
 			->addOption(
 				'--admin',
 				null,
 				InputOption::VALUE_NONE,
-				'Si défini, cet utilisateur sera admin.'
+				'Si defini, cet utilisateur sera admin.'
 			)
 			->addOption(
 				'--superadmin',
 				null,
 				InputOption::VALUE_NONE,
-				'Si défini, cet utilisateur sera super_admin.'
+				'Si defini, cet utilisateur sera super_admin.'
 			);
 	}
 

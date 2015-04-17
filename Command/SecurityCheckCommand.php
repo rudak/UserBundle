@@ -22,7 +22,7 @@ class SecurityCheckCommand extends ContainerAwareCommand
 				'--delete',
 				null,
 				InputOption::VALUE_NONE,
-				'Si défini, les hash et dates de validités expirés seront supprimés'
+				'Si defini, les hash et dates de validites expires seront supprimes'
 			);
 	}
 
