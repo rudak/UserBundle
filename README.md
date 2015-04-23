@@ -60,7 +60,16 @@ userbundle de fainéant pour les projets a la con (dont use it)
         from: admin@youporn.com
         websiteName: youporn.com
         homepage_route: homepage
-        
+## Affichage des vues
+
+Les vues étendent par défaut **main_layout**, une variable qui pointe vers la vue principale, dans le config.yml. Ca permet de centraliser un peu la mise en place.
+
+    # Twig Configuration
+    twig:
+        ...
+        globals:
+            main_layout: '::base.html.twig'
+            
 ## Importation des blocks
 
 Pour importer la partie membre dans une **template twig** :
@@ -110,6 +119,11 @@ Cette commande renvoie tous les utilisateurs qui contiennent des hashs expirés.
 En passant l'option ```--delete``` Les informations qui concernent ces hashs sont supprimées.
 *Ces hashs sont créés lors des demandes de réinitialisation de mot de passe et autres. On peut se passer de cette commande, mais elle existe...*
 
+###Verifier la configuration du bundle rapidement
+    
+    rudakuser:config:dump
+**Exemple :** ``` php app/console rudakuser:config:dump ```    
+Cette commande renvoie toutes les valeurs de configuration du bundle.
 # Options:
 
 Exemple d'options se trouvant dans le fichier ```app/config/config.yml```
