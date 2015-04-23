@@ -24,7 +24,7 @@ class ConfigCommand extends ContainerAwareCommand
 		if (is_array($config)) {
 			$output->writeln("\nConfiguration du RudakUserBundle\n");
 			foreach ($config as $key => $value) {
-				$output->writeln($key . ' : ' . ($value ? $value : 'Default'));
+				$output->writeln($key . ' : ' . ($value == false ? 'false' : $value));
 			}
 		} else {
 			$output->writeln('Erreur de configuration du bundle');
