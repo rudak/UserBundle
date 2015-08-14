@@ -54,12 +54,34 @@ userbundle de fainéant pour les projets a la con (dont use it)
             - { path: ^/.*, role: IS_AUTHENTICATED_ANONYMOUSLY }
             
 #### Options:            
-    
+Ajoutez ces parametres dans le ```app/config/config.yml```
+
     rudak_user:
         autologin_before_reinit: false
         from: admin@youporn.com
         websiteName: youporn.com
         homepage_route: homepage
+        
+#### Parametrer le routing
+Ajouter ces informations de routing
+
+    rudak_user:
+        resource: "@RudakUserBundle/Resources/config/routing.yml"
+        prefix:   /
+    login:
+        path:   /login
+        defaults:  { _controller: RudakUserBundle:Security:login }
+    login_check:
+        path:   /login_check
+    logout:
+        path:   /logout
+
+#### Traductions
+Pour que les traductions fonctionnent il faut parametrer la locale et décommenter cette ligne :
+
+    framework:   
+        translator:      { fallbacks: ["%locale%"] }        
+        
 ## Affichage des vues
 
 Les vues étendent par défaut **main_layout**, une variable qui pointe vers la vue principale, dans le config.yml. Ca permet de centraliser un peu la mise en place.
