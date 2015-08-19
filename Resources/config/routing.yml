@@ -6,48 +6,46 @@ rudak_user_logged:
     prefix:   /user
 
 index:
-    pattern:     /index
+    path:     /index
     defaults: { _controller: RudakUserBundle:Default:index }
 
 record_new:
-    pattern:     /record-new-user
+    path:     /record-new-user
     defaults: { _controller: RudakUserBundle:Record:new }
 
 record_create:
-    pattern:     /create-user
+    path:     /create-user
     defaults: { _controller: RudakUserBundle:Record:create }
-    requirements:
-        #_method: POST
 
 record_validing_email:
-    pattern:     /email-validation/{hash}
+    path:     /email-validation/{hash}
     defaults: { _controller: RudakUserBundle:Record:validation }
     requirements:
         hash: "[a-z\d]+"
 
 rudakUser_lost_pwd:
-    pattern: /mot-de-passe-perdu
+    path: /mot-de-passe-perdu
     defaults: { _controller: RudakUserBundle:Password:lost }
 
 rudakUser_lost_pwd_find:
-    pattern: /retrouver-utilisateur
+    path: /retrouver-utilisateur
     defaults: { _controller: RudakUserBundle:Password:findUser }
     requirements:
-        _method: POST
+    methods: [POST]
 
 rudakUser_autogen_pwd_answer:
-    pattern: /autogen-mot-de-passe/{hash}
+    path: /autogen-mot-de-passe/{hash}
     defaults: { _controller: RudakUserBundle:Password:autoGenAnswer }
     requirements:
         hash: "[a-z\d]+"
 
 rudakUser_reinit_mail_answer:
-    pattern: /reinitialisation-mot-de-passe/{hash}
+    path: /reinitialisation-mot-de-passe/{hash}
     defaults: { _controller: RudakUserBundle:Password:emailAnswer }
     requirements:
         hash: "[a-z\d]+"
 
 
 rudakUser_email_change_confirmation:
-    pattern: /confirmer-nouvelle-adresse-email/{hash}
+    path: /confirmer-nouvelle-adresse-email/{hash}
     defaults: { _controller: RudakUserBundle:Email:confirmationEmail }

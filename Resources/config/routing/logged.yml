@@ -1,19 +1,20 @@
 rudakUser_profile:
-    pattern: /mon-profil
+    path: /mon-profil
     defaults: { _controller: RudakUserBundle:Default:profile }
 
 # MODIFIER MOT DE PASSE
 rudakUser_pwd_modification:
-    pattern: /modifier-mot-de-passe
+    path: /modifier-mot-de-passe
     defaults: { _controller: RudakUserBundle:Password:changePassword }
+
 rudakUser_password_lost_reinit:
-    pattern: /enregistrer-nouveau-mot-de-passe
+    path: /enregistrer-nouveau-mot-de-passe
     defaults: { _controller: RudakUserBundle:Password:emailAnswer }
-    requirements:
-        _method: POST
+    methods: [POST]
+
 # MODIFIER EMAIL
 rudakUser_email_modification:
-    pattern: /modifier-mon-email
+    path: /modifier-mon-email
     defaults: { _controller: RudakUserBundle:Email:changeEmail }
 
 
