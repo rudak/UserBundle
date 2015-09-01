@@ -19,7 +19,7 @@
     "symfony/framework-bundle": ">=2.1",
     "twig/twig": "*",
     "doctrine/doctrine-bundle": "*",
-    "rudak/slug-bundle": "dev-master"
+    "rudak/slug-bundle": "~1.0"
   },
   "autoload": {
     "psr-0": {
