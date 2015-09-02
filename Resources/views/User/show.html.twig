@@ -3,8 +3,20 @@
 {% block content -%}
     <div class="row">
         <div class="col-xs-12">
-            <h1>User</h1>
-
+            <ol class="breadcrumb">
+                <li>
+                    <a href="{{ path('admin_homepage') }}">
+                        Administration
+                    </a>
+                </li>
+                <li class="active"><a href="{{ path('admin_user') }}">
+                        Utilisateurs
+                    </a>
+                </li>
+                <li class="active">
+                    Voir utilisateur
+                </li>
+            </ol>
             <table class="table">
                 <tbody>
                 <tr>

@@ -3,14 +3,25 @@
 {% block content -%}
     <div class="row">
         <div class="col-xs-12">
-            <h1>User creation</h1>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="{{ path('admin_homepage') }}">
+                        Administration
+                    </a>
+                </li>
+                <li class="active"><a href="{{ path('admin_user') }}">
+                        Utilisateurs
+                    </a>
+                </li>
+                <li class="active">
+                    Creer utilisateur
+                </li>
+            </ol>
 
             {{ form(form) }}
             <hr/>
             <p>
-                <a href="{{ path('admin_user') }}" class="btn btn-default">
-                    Retour a la liste
-                </a>
+
             </p>
         </div>
     </div>
