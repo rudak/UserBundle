@@ -111,6 +111,29 @@ devrait avoir de mal à changer ses infos privées de manière ... privée.
 J'ai utilisé une base de Bootstrap pour l'admin, c'est propre sans etre foufou non plus, ca peut s'améliorer mais a la base, 
 j'ai pas besoin d'une administration super branchée donc voila...
 
+Les pages du CRUD sont prévues pour étendre la vue nommée ```admin_layout```. Le contenu est envoyé vers le block nommé ```content```. Voici un petit exemple de ce que pourrait contenir cette vue.
+
+    {% extends main_layout %}
+    
+    {% block body %}
+        <div class="row">
+            <div class="col-sm-8">
+                <h1>Administration</h1>
+                {% block content %}{% endblock %}
+            </div>
+            <div class="col-sm-4">
+    
+            </div>
+        </div>
+    {% endblock %}
+    
+Pour les variables twig, il faut rajouter ca dans votre ```config.yml```.
+
+    twig:
+        globals:
+            main_layout: '::base.html.twig'
+            admin_layout: '::admin-layout.html.twig'
+
 # Lignes de commandes:
 ###Creer un utilisateur
 
