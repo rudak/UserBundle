@@ -22,9 +22,9 @@
                         <td>{{ entity.email }}</td>
                         <td>
                             {% if entity.isActive %}
-                                Oui
+                                <span class="label label-success">Oui</span>
                             {% else %}
-                                Non
+                                <span class="label label-danger">Non</span>
                             {% endif %}
                         </td>
                         <td>{% if entity.lastLogin %}{{ entity.lastLogin|date('Y-m-d H:i:s') }}{% endif %}</td>
